@@ -3,14 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeonCinéma IDF - Analyse Interactive des Données</title>
-  <meta name="description" content="Explorez les cinémas d'Île-de-France avec des visualisations de données interactives dans un design ultra épuré">
-  
-  <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
-  
-  <!-- Main Styles -->
-  <link rel="stylesheet" href="assets/css/main.css">
+  <title>Cinémas d'Île-de-France</title>
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -18,100 +11,16 @@
   <!-- MarkerCluster CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+  
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="include/styles.css">
 </head>
 
 <body>
-  <!-- Points lumineux scintillants -->
-  <div class="sparkle-dots"></div>
-
-  <!-- Header -->
-  <header class="header">
-    <div class="header__container">
-      <!-- Logo -->
-      <a href="#" class="header__logo animate-neon">
-        🎬 CinémaData
-      </a>
-      
-      <!-- Navigation Desktop -->
-      <nav class="header__nav">
-        <ul class="nav__list">
-          <li><a href="#" class="nav__link active">Données</a></li>
-          <li><a href="#" class="nav__link">Analyse</a></li>
-          <li><a href="#" class="nav__link">Statistiques</a></li>
-          <li><a href="#" class="nav__link">À propos</a></li>
-        </ul>
-      </nav>
-      
-      <!-- Menu Burger Mobile -->
-      <button class="header__burger">
-        <span class="burger__line"></span>
-        <span class="burger__line"></span>
-        <span class="burger__line"></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Sidebar Toggle Button -->
-  <button class="sidebar-toggle" data-tooltip="Ouvrir l'analyse des données">
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-    </svg>
-  </button>
-
-  <!-- Sidebar avec Analyse de Données -->
-  <aside class="sidebar">
-    <div class="sidebar__header">
-      <h2 class="sidebar__title animate-gradient">Analyse Cinéma</h2>
-      <p class="sidebar__subtitle">Explorez les données interactives</p>
-    </div>
-    
-    <div class="sidebar__content">
-      <!-- Les contrôles de base -->
-      <div class="control-group animate-float">
-        <h3 class="control-group__title">🗺️ Contrôles Carte</h3>
-        <div class="custom-select">
-          <select id="map-style-select">
-            <option value="osm">🗺️ Classique</option>
-            <option value="satellite">🛰️ Satellite</option>
-          </select>
-        </div>
-        <div class="custom-select" style="margin-top: 10px;">
-          <select id="departement-select">
-            <option value="all">🌍 Tous les départements</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Les autres éléments seront ajoutés dynamiquement par cinema-data.js -->
-      
-      <!-- Actions rapides -->
-      <div class="control-group animate-float">
-        <h3 class="control-group__title">⚡ Actions</h3>
-        <div class="d-flex gap-sm">
-          <button class="btn btn--secondary" onclick="refreshData()" data-tooltip="Actualiser les données">
-            🔄 Actualiser
-          </button>
-          <button class="btn btn--ghost" onclick="exportData()" data-tooltip="Exporter les données">
-            💾 Export
-          </button>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Map Container -->
-  <main class="map-container">
-    <!-- Loading Overlay -->
-    <div class="map-loading" id="map-loading">
-      <div class="loading-spinner"></div>
-    </div>
-    
-    <!-- Map -->
+  <div class="container">
     <div id="map"></div>
-  </main>
+  </div>
 
-  <!-- Scripts -->
-  
   <!-- Leaflet JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   
@@ -119,131 +28,6 @@
   <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   
   <!-- Custom Scripts -->
-  <script src="assets/js/animations.js"></script>
-  <script src="assets/js/ui.js"></script>
-  <script src="assets/js/cinema-data.js"></script>
   <script src="include/leaflet.js"></script>
-  
-  <!-- Application Initialization -->
-  <script>
-    // Initialize the application
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize UI Manager
-      const uiManager = new UIManager();
-      
-      // Initialize Animation Manager
-      const animationManager = new AnimationManager();
-      
-      // Hide loading overlay after map is loaded
-      setTimeout(() => {
-        const loading = document.getElementById('map-loading');
-        if (loading) {
-          loading.style.opacity = '0';
-          setTimeout(() => {
-            loading.style.display = 'none';
-          }, 300);
-        }
-      }, 2000);
-      
-      // Show welcome message
-      setTimeout(() => {
-        uiManager.showToast('📊 Bienvenue dans l\'analyse des données cinéma !', 'success');
-      }, 1500);
-    });
-    
-    // Fonctions globales
-    function refreshData() {
-      if (window.cinemaDataManager) {
-        window.cinemaDataManager.init();
-        if (window.UIManager) {
-          const ui = new UIManager();
-          ui.showToast('🔄 Données actualisées !', 'success');
-        }
-      }
-    }
-    
-    function exportData() {
-      if (window.cinemaDataManager) {
-        const stats = window.cinemaDataManager.getStats();
-        const dataStr = JSON.stringify(stats, null, 2);
-        const dataBlob = new Blob([dataStr], {type:'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = 'cinema-stats.json';
-        link.click();
-        
-        if (window.UIManager) {
-          const ui = new UIManager();
-          ui.showToast('💾 Données exportées !', 'success');
-        }
-      }
-    }
-    
-    // Fullscreen functionality
-    function toggleFullscreen() {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        document.documentElement.requestFullscreen();
-      }
-    }
-    
-    // Easter egg: Konami code
-    let konamiCode = [];
-    const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
-    
-    document.addEventListener('keydown', function(e) {
-      konamiCode.push(e.keyCode);
-      if (konamiCode.length > konami.length) {
-        konamiCode.shift();
-      }
-      
-      if (konamiCode.length === konami.length && 
-          konamiCode.every((code, index) => code === konami[index])) {
-        
-        // Active mode disco
-        document.body.style.animation = 'rainbow 0.5s infinite';
-        setTimeout(() => {
-          document.body.style.animation = '';
-        }, 5000);
-        
-        if (window.UIManager) {
-          const ui = new UIManager();
-          ui.showToast('🕺 Mode Disco activé ! 🕺', 'success', 5000);
-        }
-      }
-    });
-    
-    // Keyboard shortcuts info
-    document.addEventListener('keydown', function(e) {
-      if (e.key === '?' || (e.key === 'h' && (e.ctrlKey || e.metaKey))) {
-        e.preventDefault();
-        if (window.UIManager) {
-          const ui = new UIManager();
-          ui.showToast(`
-            🔧 Raccourcis: Ctrl+B (sidebar), Ctrl+K (recherche), 
-            Escape (fermer), ↑↑↓↓←→←→BA (surprise)
-          `, 'info', 5000);
-        }
-      }
-    });
-  </script>
-
-  <!-- Performance monitoring -->
-  <script>
-    window.addEventListener('load', function() {
-      const loadTime = performance.now();
-      console.log(`🚀 CinémaData chargé en ${Math.round(loadTime)}ms`);
-    });
-  </script>
-  
-  <!-- Style pour l'easter egg -->
-  <style>
-    @keyframes rainbow {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(360deg); }
-    }
-  </style>
 </body>
 </html>
