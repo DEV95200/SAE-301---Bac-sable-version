@@ -1,0 +1,54 @@
+/* ========================== */
+/*       VARIABLES CSS        */
+/* ========================== */
+
+:root {
+  /* === COULEURS PRINCIPALES === */
+  --primary-dark: #0a0e1a;
+  --primary-blue: #1e3a8a;
+  --secondary-dark: #1a1f2e;
+  --accent-neon: #00d4ff;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #ec4899;
+  
+  /* === DÉGRADÉS === */
+  --gradient-primary: linear-gradient(135deg, #0a0e1a 0%, #1e3a8a 50%, #1a1f2e 100%);
+  --gradient-neon: linear-gradient(45deg, #00d4ff, #8b5cf6, #ec4899);
+  --gradient-card: linear-gradient(145deg, rgba(26, 31, 46, 0.9), rgba(30, 58, 138, 0.3));
+  --gradient-button: linear-gradient(45deg, #00d4ff 0%, #8b5cf6 50%, #ec4899 100%);
+  
+  /* === OMBRES NÉON === */
+  --shadow-neon-blue: 0 0 20px rgba(0, 212, 255, 0.5);
+  --shadow-neon-purple: 0 0 20px rgba(139, 92, 246, 0.5);
+  --shadow-neon-pink: 0 0 20px rgba(236, 72, 153, 0.5);
+  --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.3);
+  
+  /* === TYPOGRAPHY === */
+  --font-primary: 'Orbitron', 'Arial', sans-serif;
+  --font-secondary: 'Rajdhani', 'Arial', sans-serif;
+  
+  /* === TAILLES === */
+  --border-radius: 12px;
+  --border-radius-small: 8px;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+  
+  /* === TRANSITIONS === */
+  --transition-fast: 0.3s ease-in-out;
+  --transition-medium: 0.5s ease-in-out;
+  --transition-slow: 0.7s ease-in-out;
+  
+  /* === Z-INDEX === */
+  --z-header: 1000;
+  --z-sidebar: 1100;
+  --z-modal: 1200;
+  --z-tooltip: 1300;
+}
+
+/* === BREAKPOINTS === */
+@custom-media --mobile (max-width: 768px);
+@custom-media --tablet (max-width: 1024px);
+@custom-media --desktop (min-width: 1025px);
