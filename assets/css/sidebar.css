@@ -8,9 +8,9 @@
   left: 0;
   width: 320px;
   height: calc(100vh - 80px);
-  background: rgba(26, 31, 46, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(0, 212, 255, 0.2);
+  border-right: 1px solid var(--accent-neon);
   z-index: var(--z-sidebar);
   transform: translateX(-100%);
   transition: var(--transition-medium);
@@ -19,13 +19,13 @@
 
 .sidebar.active {
   transform: translateX(0);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-blue-medium);
 }
 
 .sidebar__header {
   padding: var(--spacing-lg);
-  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-  background: rgba(30, 58, 138, 0.1);
+  border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+  background: rgba(15, 15, 35, 0.3);
 }
 
 .sidebar__title {
@@ -83,8 +83,8 @@
 .custom-select select {
   width: 100%;
   padding: var(--spacing-md);
-  background: rgba(10, 14, 26, 0.8);
-  border: 2px solid rgba(0, 212, 255, 0.2);
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--accent-neon);
   border-radius: var(--border-radius);
   color: #ffffff;
   font-size: 1rem;
@@ -95,12 +95,12 @@
 
 .custom-select select:focus {
   outline: none;
-  border-color: var(--accent-neon);
-  box-shadow: var(--shadow-neon-blue);
+  border-color: var(--accent-blue-light);
+  box-shadow: var(--shadow-blue-soft);
 }
 
 .custom-select select:hover {
-  border-color: var(--accent-purple);
+  border-color: var(--accent-blue-light);
 }
 
 .custom-select::after {

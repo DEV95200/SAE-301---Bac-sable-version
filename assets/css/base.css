@@ -19,29 +19,32 @@ html {
 
 body {
   font-family: var(--font-secondary);
-  background: var(--gradient-primary);
+  background: var(--primary-dark);
   color: #ffffff;
   overflow-x: hidden;
   min-height: 100vh;
   position: relative;
 }
 
-/* === BACKGROUND ANIMÉ === */
+/* === BACKGROUND CINÉMA ANIMÉ === */
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
-  animation: backgroundPulse 8s ease-in-out infinite alternate;
-  z-index: -2;
+    radial-gradient(circle, #3498db 8%, transparent 15%),
+    radial-gradient(circle, transparent 8%, #3498db 15%),
+    radial-gradient(circle, #74b9ff 5%, transparent 12%);
+  background-size: 40px 40px, 60px 60px, 80px 80px;
+  animation: moveBackground 12s linear infinite;
+  z-index: -3;
+  opacity: 0.6;
 }
 
+/* Couche d'icônes cinéma */
 body::after {
   content: '';
   position: fixed;
@@ -49,32 +52,86 @@ body::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300d4ff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  z-index: -1;
-  animation: gridMove 20s linear infinite;
+  background: 
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='20' y='30' font-size='16' fill='%233498db' opacity='0.3'%3E🍿%3C/text%3E%3Ctext x='70' y='80' font-size='14' fill='%2374b9ff' opacity='0.2'%3E🎬%3C/text%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='40' y='60' font-size='12' fill='%230984e3' opacity='0.25'%3E🎭%3C/text%3E%3Ctext x='10' y='100' font-size='18' fill='%233498db' opacity='0.2'%3E🎞️%3C/text%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='30' y='50' font-size='20' fill='%2374b9ff' opacity='0.15'%3E🥤%3C/text%3E%3C/svg%3E");
+  background-size: 200px 200px, 300px 300px, 150px 150px;
+  animation: floatIcons 20s linear infinite reverse;
+  z-index: -2;
+  pointer-events: none;
 }
 
-@keyframes backgroundPulse {
+@keyframes moveBackground {
   0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(25%, 25%) rotate(360deg);
+  }
+}
+
+@keyframes floatIcons {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.1;
+  }
+  50% {
     opacity: 0.3;
   }
   100% {
+    transform: translate(-100px, -100px);
+    opacity: 0.1;
+  }
+}
+
+/* Effet de scintillement */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
     opacity: 0.8;
+    transform: scale(1.2);
   }
 }
 
-@keyframes gridMove {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(60px, 60px);
-  }
+/* Points lumineux scintillants */
+.sparkle-dots {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
 }
 
-/* === SCROLLBAR PERSONNALISÉE === */
+.sparkle-dots::before {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #3498db;
+  border-radius: 50%;
+  box-shadow: 
+    50px 100px 0 #74b9ff,
+    150px 200px 0 #0984e3,
+    300px 50px 0 #3498db,
+    450px 150px 0 #74b9ff,
+    600px 300px 0 #0984e3,
+    750px 100px 0 #3498db,
+    900px 250px 0 #74b9ff,
+    200px 400px 0 #0984e3,
+    400px 500px 0 #3498db,
+    700px 450px 0 #74b9ff;
+  animation: sparkle 3s ease-in-out infinite;
+}
+
+/* === SCROLLBAR ÉPURÉE === */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -82,13 +139,14 @@ body::after {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--gradient-neon);
-  border-radius: 4px;
+  background: var(--accent-neon);
+  border-radius: 3px;
+  opacity: 0.7;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-neon);
-  box-shadow: var(--shadow-neon-blue);
+  background: var(--accent-blue-light);
+  box-shadow: var(--shadow-blue-soft);
 }
 
 /* === SÉLECTION DE TEXTE === */

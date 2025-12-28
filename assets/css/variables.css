@@ -4,24 +4,24 @@
 
 :root {
   /* === COULEURS PRINCIPALES === */
-  --primary-dark: #0a0e1a;
-  --primary-blue: #1e3a8a;
-  --secondary-dark: #1a1f2e;
-  --accent-neon: #00d4ff;
-  --accent-purple: #8b5cf6;
-  --accent-pink: #ec4899;
+  --primary-dark: #000000;
+  --primary-blue: #0f0f23;
+  --secondary-dark: #1a1a1a;
+  --accent-neon: #3498db;
+  --accent-blue-light: #74b9ff;
+  --accent-blue-glow: #0984e3;
   
   /* === DÉGRADÉS === */
-  --gradient-primary: linear-gradient(135deg, #0a0e1a 0%, #1e3a8a 50%, #1a1f2e 100%);
-  --gradient-neon: linear-gradient(45deg, #00d4ff, #8b5cf6, #ec4899);
-  --gradient-card: linear-gradient(145deg, rgba(26, 31, 46, 0.9), rgba(30, 58, 138, 0.3));
-  --gradient-button: linear-gradient(45deg, #00d4ff 0%, #8b5cf6 50%, #ec4899 100%);
+  --gradient-primary: linear-gradient(135deg, #000000 0%, #0f0f23 50%, #1a1a1a 100%);
+  --gradient-neon: linear-gradient(45deg, #3498db, #74b9ff, #0984e3);
+  --gradient-card: linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(15, 15, 35, 0.6));
+  --gradient-button: linear-gradient(45deg, #3498db 0%, #74b9ff 50%, #0984e3 100%);
   
-  /* === OMBRES NÉON === */
-  --shadow-neon-blue: 0 0 20px rgba(0, 212, 255, 0.5);
-  --shadow-neon-purple: 0 0 20px rgba(139, 92, 246, 0.5);
-  --shadow-neon-pink: 0 0 20px rgba(236, 72, 153, 0.5);
-  --shadow-glow: 0 0 40px rgba(0, 212, 255, 0.3);
+  /* === OMBRES BLEUES === */
+  --shadow-blue-soft: 0 0 15px rgba(52, 152, 219, 0.3);
+  --shadow-blue-medium: 0 0 25px rgba(116, 185, 255, 0.4);
+  --shadow-blue-strong: 0 0 35px rgba(9, 132, 227, 0.6);
+  --shadow-glow: 0 0 50px rgba(52, 152, 219, 0.2);
   
   /* === TYPOGRAPHY === */
   --font-primary: 'Orbitron', 'Arial', sans-serif;

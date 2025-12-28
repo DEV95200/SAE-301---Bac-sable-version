@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeonCinéma IDF - Carte Interactive des Cinémas</title>
-  <meta name="description" content="Découvrez les cinémas d'Île-de-France sur une carte interactive avec un design néon futuriste">
+  <title>NeonCinéma IDF - Analyse Interactive des Données</title>
+  <meta name="description" content="Explorez les cinémas d'Île-de-France avec des visualisations de données interactives dans un design ultra épuré">
   
   <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
@@ -21,21 +21,24 @@
 </head>
 
 <body>
+  <!-- Points lumineux scintillants -->
+  <div class="sparkle-dots"></div>
+
   <!-- Header -->
   <header class="header">
     <div class="header__container">
       <!-- Logo -->
       <a href="#" class="header__logo animate-neon">
-        🎬 NeonCinéma
+        🎬 CinémaData
       </a>
       
       <!-- Navigation Desktop -->
       <nav class="header__nav">
         <ul class="nav__list">
-          <li><a href="#" class="nav__link active">Accueil</a></li>
-          <li><a href="#" class="nav__link">Cinémas</a></li>
+          <li><a href="#" class="nav__link active">Données</a></li>
+          <li><a href="#" class="nav__link">Analyse</a></li>
+          <li><a href="#" class="nav__link">Statistiques</a></li>
           <li><a href="#" class="nav__link">À propos</a></li>
-          <li><a href="#" class="nav__link">Contact</a></li>
         </ul>
       </nav>
       
@@ -49,72 +52,47 @@
   </header>
 
   <!-- Sidebar Toggle Button -->
-  <button class="sidebar-toggle" data-tooltip="Ouvrir/Fermer les contrôles">
+  <button class="sidebar-toggle" data-tooltip="Ouvrir l'analyse des données">
     <svg viewBox="0 0 24 24" fill="currentColor">
       <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
     </svg>
   </button>
 
-  <!-- Sidebar Controls -->
+  <!-- Sidebar avec Analyse de Données -->
   <aside class="sidebar">
     <div class="sidebar__header">
-      <h2 class="sidebar__title animate-gradient">Contrôles</h2>
-      <p class="sidebar__subtitle">Personnalisez votre exploration</p>
+      <h2 class="sidebar__title animate-gradient">Analyse Cinéma</h2>
+      <p class="sidebar__subtitle">Explorez les données interactives</p>
     </div>
     
     <div class="sidebar__content">
-      <!-- Style de carte -->
+      <!-- Les contrôles de base -->
       <div class="control-group animate-float">
-        <h3 class="control-group__title">Style de Carte</h3>
+        <h3 class="control-group__title">🗺️ Contrôles Carte</h3>
         <div class="custom-select">
           <select id="map-style-select">
             <option value="osm">🗺️ Classique</option>
             <option value="satellite">🛰️ Satellite</option>
           </select>
         </div>
-      </div>
-
-      <!-- Filtres -->
-      <div class="control-group animate-float">
-        <h3 class="control-group__title">Filtres</h3>
-        <div class="custom-select">
+        <div class="custom-select" style="margin-top: 10px;">
           <select id="departement-select">
             <option value="all">🌍 Tous les départements</option>
           </select>
         </div>
       </div>
 
-      <!-- Statistiques -->
-      <div class="sidebar__stats animate-scale">
-        <div class="stats-grid stagger-animation">
-          <div class="stat-item">
-            <span class="stat-number" data-count="0">0</span>
-            <span class="stat-label">Cinémas</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number" data-count="0">0</span>
-            <span class="stat-label">Départements</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number" data-count="0">0</span>
-            <span class="stat-label">Salles</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number" data-count="0">0</span>
-            <span class="stat-label">Films</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Actions -->
+      <!-- Les autres éléments seront ajoutés dynamiquement par cinema-data.js -->
+      
+      <!-- Actions rapides -->
       <div class="control-group animate-float">
-        <h3 class="control-group__title">Actions</h3>
+        <h3 class="control-group__title">⚡ Actions</h3>
         <div class="d-flex gap-sm">
-          <button class="btn btn--secondary" data-tooltip="Actualiser la carte">
+          <button class="btn btn--secondary" onclick="refreshData()" data-tooltip="Actualiser les données">
             🔄 Actualiser
           </button>
-          <button class="btn btn--ghost" data-tooltip="Plein écran" onclick="toggleFullscreen()">
-            🔍 Zoom
+          <button class="btn btn--ghost" onclick="exportData()" data-tooltip="Exporter les données">
+            💾 Export
           </button>
         </div>
       </div>
@@ -143,6 +121,7 @@
   <!-- Custom Scripts -->
   <script src="assets/js/animations.js"></script>
   <script src="assets/js/ui.js"></script>
+  <script src="assets/js/cinema-data.js"></script>
   <script src="include/leaflet.js"></script>
   
   <!-- Application Initialization -->
@@ -166,20 +145,40 @@
         }
       }, 2000);
       
-      // Update statistics (example)
+      // Show welcome message
       setTimeout(() => {
-        animationManager.animateCounter(document.querySelector('[data-count="0"]'), 0, 20, 1500);
-        const statNumbers = document.querySelectorAll('.stat-number');
-        if (statNumbers[1]) animationManager.animateCounter(statNumbers[1], 0, 8, 1500);
-        if (statNumbers[2]) animationManager.animateCounter(statNumbers[2], 0, 156, 2000);
-        if (statNumbers[3]) animationManager.animateCounter(statNumbers[3], 0, 89, 1800);
-      }, 1000);
-      
-      // Show welcome toast
-      setTimeout(() => {
-        uiManager.showToast('🎬 Bienvenue sur NeonCinéma IDF !', 'success');
-      }, 500);
+        uiManager.showToast('📊 Bienvenue dans l\'analyse des données cinéma !', 'success');
+      }, 1500);
     });
+    
+    // Fonctions globales
+    function refreshData() {
+      if (window.cinemaDataManager) {
+        window.cinemaDataManager.init();
+        if (window.UIManager) {
+          const ui = new UIManager();
+          ui.showToast('🔄 Données actualisées !', 'success');
+        }
+      }
+    }
+    
+    function exportData() {
+      if (window.cinemaDataManager) {
+        const stats = window.cinemaDataManager.getStats();
+        const dataStr = JSON.stringify(stats, null, 2);
+        const dataBlob = new Blob([dataStr], {type:'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'cinema-stats.json';
+        link.click();
+        
+        if (window.UIManager) {
+          const ui = new UIManager();
+          ui.showToast('💾 Données exportées !', 'success');
+        }
+      }
+    }
     
     // Fullscreen functionality
     function toggleFullscreen() {
@@ -190,32 +189,61 @@
       }
     }
     
+    // Easter egg: Konami code
+    let konamiCode = [];
+    const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+    
+    document.addEventListener('keydown', function(e) {
+      konamiCode.push(e.keyCode);
+      if (konamiCode.length > konami.length) {
+        konamiCode.shift();
+      }
+      
+      if (konamiCode.length === konami.length && 
+          konamiCode.every((code, index) => code === konami[index])) {
+        
+        // Active mode disco
+        document.body.style.animation = 'rainbow 0.5s infinite';
+        setTimeout(() => {
+          document.body.style.animation = '';
+        }, 5000);
+        
+        if (window.UIManager) {
+          const ui = new UIManager();
+          ui.showToast('🕺 Mode Disco activé ! 🕺', 'success', 5000);
+        }
+      }
+    });
+    
     // Keyboard shortcuts info
     document.addEventListener('keydown', function(e) {
       if (e.key === '?' || (e.key === 'h' && (e.ctrlKey || e.metaKey))) {
         e.preventDefault();
-        const shortcuts = `
-          <h3>Raccourcis Clavier</h3>
-          <ul>
-            <li><kbd>Ctrl + B</kbd> : Ouvrir/Fermer la sidebar</li>
-            <li><kbd>Ctrl + K</kbd> : Focus sur la recherche</li>
-            <li><kbd>Escape</kbd> : Fermer les modales/sidebar</li>
-            <li><kbd>?</kbd> ou <kbd>Ctrl + H</kbd> : Cette aide</li>
-          </ul>
-        `;
-        // Ici vous pourriez ouvrir une modale avec ces informations
-        console.log('Raccourcis disponibles');
+        if (window.UIManager) {
+          const ui = new UIManager();
+          ui.showToast(`
+            🔧 Raccourcis: Ctrl+B (sidebar), Ctrl+K (recherche), 
+            Escape (fermer), ↑↑↓↓←→←→BA (surprise)
+          `, 'info', 5000);
+        }
       }
     });
   </script>
 
-  <!-- Performance monitoring (optional) -->
+  <!-- Performance monitoring -->
   <script>
-    // Log page load performance
     window.addEventListener('load', function() {
       const loadTime = performance.now();
-      console.log(`🚀 Page chargée en ${Math.round(loadTime)}ms`);
+      console.log(`🚀 CinémaData chargé en ${Math.round(loadTime)}ms`);
     });
   </script>
+  
+  <!-- Style pour l'easter egg -->
+  <style>
+    @keyframes rainbow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+  </style>
 </body>
 </html>
