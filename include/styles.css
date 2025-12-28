@@ -55,7 +55,7 @@ body {
 .container {
   width: 100%;
   height: 100vh;
-  background: lightblue;
+  background: pink;
   position: relative;
   overflow: hidden;
 }
