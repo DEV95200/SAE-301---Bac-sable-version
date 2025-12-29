@@ -498,29 +498,45 @@ class GeolocationManager {
 
   showDetails(cinemaId) {
     console.log('Tentative d\'ouverture des détails pour le cinéma ID:', cinemaId);
+    console.log('Type de cinemaId:', typeof cinemaId);
+    console.log('App disponible:', !!this.app);
+    console.log('Cinemas disponibles:', !!this.app.cinemas);
+    console.log('Nombre de cinémas:', this.app.cinemas ? this.app.cinemas.length : 0);
     
-    const cinema = this.app.cinemas.find(c => c.id === parseInt(cinemaId));
+    // Convertir l'ID en nombre
+    const numericId = parseInt(cinemaId);
+    console.log('ID numérique:', numericId);
+    
+    const cinema = this.app.cinemas.find(c => {
+      console.log('Comparaison: cinema.id =', c.id, ', recherché =', numericId);
+      return c.id === numericId;
+    });
     
     if (cinema) {
       console.log('Cinéma trouvé:', cinema.nom);
       
-      // Vérifier si le modal manager existe
-      if (window.modalManager) {
+      // Vérifier si cinemaApp existe et a la méthode showCinemaDetails
+      if (window.cinemaApp && typeof window.cinemaApp.showCinemaDetails === 'function') {
+        console.log('Méthode showCinemaDetails trouvée');
+        
         // Fermer le panneau de géolocalisation
         this.hidePanel();
         
         // Attendre un peu que le panneau se ferme puis ouvrir la modal
         setTimeout(() => {
-          window.modalManager.showCinemaDetails(cinema);
+          window.cinemaApp.showCinemaDetails(cinema.id);
         }, 300);
         
         window.ToastManager.show(`Ouverture des détails de ${cinema.nom}`, 'info');
       } else {
-        console.error('Modal manager non disponible');
-        window.ToastManager.show('Erreur: Impossible d\'ouvrir les détails', 'error');
+        console.error('cinemaApp ou showCinemaDetails non disponible');
+        console.log('window.cinemaApp:', !!window.cinemaApp);
+        console.log('showCinemaDetails method:', typeof (window.cinemaApp && window.cinemaApp.showCinemaDetails));
+        window.ToastManager.show('Erreur: Fonctionnalité non disponible', 'error');
       }
     } else {
-      console.error('Cinéma non trouvé avec l\'ID:', cinemaId);
+      console.error('Cinéma non trouvé avec l\'ID:', numericId);
+      console.log('IDs disponibles:', this.app.cinemas.map(c => c.id));
       window.ToastManager.show('Erreur: Cinéma non trouvé', 'error');
     }
   }
