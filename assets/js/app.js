@@ -67,7 +67,7 @@ class CinemaApp {
 
     initEventListeners() {
         // Navigation
-        document.querySelectorAll('.nav-btn').forEach(btn => {
+        document.querySelectorAll('.nav-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const section = e.target.id.replace('nav-', '');
                 this.switchView(section);
@@ -80,7 +80,7 @@ class CinemaApp {
         });
 
         // Mobile navigation
-        document.querySelectorAll('.nav-btn-mobile').forEach(btn => {
+        document.querySelectorAll('.mobile-nav-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const text = e.target.textContent.trim();
                 const section = text.includes('Carte') ? 'map' : 
@@ -145,7 +145,7 @@ class CinemaApp {
         }
 
         // Update navigation
-        document.querySelectorAll('.nav-btn').forEach(btn => {
+        document.querySelectorAll('.nav-button').forEach(btn => {
             btn.classList.remove('active');
         });
         

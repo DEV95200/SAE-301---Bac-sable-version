@@ -158,14 +158,17 @@
 }
 
 .mobile-menu {
-  display: none;
   background-color: #1a1a1a;
   border-top: 1px solid #2a2a2a;
 }
 
-@media (max-width: 767px) {
-  .mobile-menu.show {
-    display: block;
+.mobile-menu.hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-menu {
+    display: none !important;
   }
 }
 
@@ -511,13 +514,16 @@
   inset: 0;
   background-color: rgba(0, 0, 0, 0.75);
   z-index: 50;
-  display: none;
   align-items: center;
   justify-content: center;
   padding: 1rem;
 }
 
-.cinema-modal.show {
+.cinema-modal.hidden {
+  display: none;
+}
+
+.cinema-modal:not(.hidden) {
   display: flex;
 }
 
