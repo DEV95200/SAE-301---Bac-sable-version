@@ -885,3 +885,36 @@
   font-size: 0.875rem;
   color: #9ca3af;
 }
+
+/* === ÉLÉMENTS DE ROUTAGE === */
+.cinema-marker-highlighted {
+  position: relative;
+  z-index: 1000;
+}
+
+.cinema-marker-highlighted .marker-inner {
+  background: linear-gradient(45deg, #d4af37, #b8941f);
+  border: 3px solid white;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  animation: pulse-highlight 2s infinite;
+}
+
+.cinema-marker-highlighted .marker-inner i {
+  color: white;
+  font-size: 18px;
+}
+
+@keyframes pulse-highlight {
+  0% { 
+    transform: scale(1); 
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  }
+  50% { 
+    transform: scale(1.1); 
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.7);
+  }
+  100% { 
+    transform: scale(1); 
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  }
+}

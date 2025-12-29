@@ -583,6 +583,70 @@ Object.assign(CinemaApp.prototype, {
         return currentTime >= startTime && currentTime <= endTime;
     },
 
+    // Méthode pour afficher un itinéraire vers une destination
+    showRouteToDestination(startLat, startLng, destLat, destLng, destName) {
+        // Nettoyer les affichages précédents
+        this.clearProximityDisplay();
+        
+        // Supprimer l'ancien groupe de routage s'il existe
+        if (this.routeGroup) {
+            this.map.removeLayer(this.routeGroup);
+        }
+        
+        this.routeGroup = L.layerGroup();
+        
+        // Marqueur de départ (position utilisateur)
+        const startIcon = L.divIcon({
+            className: 'user-location-marker',
+            html: '<div class="marker-inner"><i class="fas fa-user"></i></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        const startMarker = L.marker([startLat, startLng], { icon: startIcon })
+            .bindPopup('<div class="popup-content"><strong>Votre position</strong></div>');
+        
+        this.routeGroup.addLayer(startMarker);
+        
+        // Marqueur de destination
+        const destIcon = L.divIcon({
+            className: 'cinema-marker cinema-marker-highlighted',
+            html: '<div class="marker-inner"><i class="fas fa-film"></i></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+        
+        const destMarker = L.marker([destLat, destLng], { icon: destIcon })
+            .bindPopup(`<div class="popup-content"><strong>${destName}</strong></div>`);
+        
+        this.routeGroup.addLayer(destMarker);
+        
+        // Ligne droite entre les deux points (approximation simple)
+        const routeLine = L.polyline([[startLat, startLng], [destLat, destLng]], {
+            color: '#007cba',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '10, 5'
+        });
+        
+        this.routeGroup.addLayer(routeLine);
+        
+        // Ajouter le groupe à la carte
+        this.map.addLayer(this.routeGroup);
+        
+        // Ajuster la vue pour inclure les deux points
+        const bounds = L.latLngBounds([[startLat, startLng], [destLat, destLng]]);
+        this.map.fitBounds(bounds, { padding: [50, 50] });
+        
+        // Ouvrir les popups
+        setTimeout(() => {
+            startMarker.openPopup();
+            setTimeout(() => {
+                destMarker.openPopup();
+            }, 1000);
+        }, 500);
+    },
+
     // Méthode pour revenir à la vue normale
     showAllCinemas() {
         this.clearProximityDisplay();
@@ -590,6 +654,12 @@ Object.assign(CinemaApp.prototype, {
         if (this.userMarker) {
             this.map.removeLayer(this.userMarker);
             this.userMarker = null;
+        }
+        
+        // Supprimer le groupe de routage
+        if (this.routeGroup) {
+            this.map.removeLayer(this.routeGroup);
+            this.routeGroup = null;
         }
 
         // Réafficher tous les marqueurs

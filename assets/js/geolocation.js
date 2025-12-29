@@ -454,8 +454,29 @@ class GeolocationManager {
   }
 
   navigateTo(lat, lng, name) {
-    if (navigator.geolocation) {
-      // Ouvrir dans Google Maps ou Apple Maps
+    // Afficher l'itinéraire sur la carte interne
+    if (window.mapManager && this.userPosition) {
+      // Basculer vers la vue carte si on n'y est pas
+      if (this.app.currentView !== 'map') {
+        this.app.switchView('map');
+      }
+
+      // Fermer le panneau de géolocalisation
+      this.hidePanel();
+
+      // Créer l'itinéraire sur la carte
+      window.mapManager.showRouteToDestination(
+        this.userPosition.latitude, 
+        this.userPosition.longitude, 
+        lat, 
+        lng, 
+        name
+      );
+
+      // Notification de succès
+      window.ToastManager.show(`Itinéraire vers ${name} affiché sur la carte`, 'success');
+    } else {
+      // Fallback vers Google Maps si pas de position utilisateur
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       
@@ -471,16 +492,36 @@ class GeolocationManager {
       }
       
       window.open(url, '_blank');
+      window.ToastManager.show(`Ouverture de l'itinéraire vers ${name}`, 'info');
     }
-
-    window.ToastManager.show(`Ouverture de l'itinéraire vers ${name}`, 'info');
   }
 
   showDetails(cinemaId) {
-    const cinema = this.app.cinemas.find(c => c.id === cinemaId);
-    if (cinema && window.modalManager) {
-      window.modalManager.showCinemaDetails(cinema);
-      this.hidePanel();
+    console.log('Tentative d\'ouverture des détails pour le cinéma ID:', cinemaId);
+    
+    const cinema = this.app.cinemas.find(c => c.id === parseInt(cinemaId));
+    
+    if (cinema) {
+      console.log('Cinéma trouvé:', cinema.nom);
+      
+      // Vérifier si le modal manager existe
+      if (window.modalManager) {
+        // Fermer le panneau de géolocalisation
+        this.hidePanel();
+        
+        // Attendre un peu que le panneau se ferme puis ouvrir la modal
+        setTimeout(() => {
+          window.modalManager.showCinemaDetails(cinema);
+        }, 300);
+        
+        window.ToastManager.show(`Ouverture des détails de ${cinema.nom}`, 'info');
+      } else {
+        console.error('Modal manager non disponible');
+        window.ToastManager.show('Erreur: Impossible d\'ouvrir les détails', 'error');
+      }
+    } else {
+      console.error('Cinéma non trouvé avec l\'ID:', cinemaId);
+      window.ToastManager.show('Erreur: Cinéma non trouvé', 'error');
     }
   }
 
