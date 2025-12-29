@@ -28,6 +28,9 @@ class CinemaApp {
         // Initialize filters
         this.initializeFilters();
         
+        // Initialize geolocation manager
+        this.initializeGeolocation();
+        
         // Hide loading screen
         this.hideLoadingScreen();
         
@@ -624,6 +627,15 @@ class CinemaApp {
                 }
             }, 300);
         }, 4000);
+    }
+
+    initializeGeolocation() {
+        if (window.GeolocationManager) {
+            window.geolocationManager = new GeolocationManager(this);
+            console.log('✅ Gestionnaire de géolocalisation initialisé');
+        } else {
+            console.warn('⚠️ GeolocationManager non disponible');
+        }
     }
 }
 

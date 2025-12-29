@@ -6,6 +6,8 @@ class MapManager {
         this.markers = [];
         this.markerClusterGroup = null;
         this.userMarker = null;
+        this.radiusCircle = null;
+        this.nearestMarkersGroup = null;
         this.mapStyles = {
             osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -397,5 +399,204 @@ Object.assign(CinemaApp.prototype, {
         if (this.mapManager && this.userLocation) {
             this.mapManager.showUserLocation(this.userLocation);
         }
+    },
+
+    // === NOUVELLES MÉTHODES DE GÉOLOCALISATION ===
+
+    centerOnPosition(lat, lng) {
+        if (this.map) {
+            this.map.setView([lat, lng], 13);
+        }
+    },
+
+    addUserMarker(lat, lng) {
+        // Supprimer l'ancien marqueur utilisateur s'il existe
+        if (this.userMarker) {
+            this.map.removeLayer(this.userMarker);
+        }
+
+        // Créer une icône personnalisée pour l'utilisateur
+        const userIcon = L.divIcon({
+            html: '<div class="user-location-marker"><i class="fas fa-user"></i></div>',
+            className: 'custom-user-marker',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // Ajouter le nouveau marqueur
+        this.userMarker = L.marker([lat, lng], { icon: userIcon })
+            .addTo(this.map)
+            .bindPopup(`
+                <div class="user-popup">
+                    <h4><i class="fas fa-user"></i> Votre position</h4>
+                    <p>Latitude: ${lat.toFixed(6)}</p>
+                    <p>Longitude: ${lng.toFixed(6)}</p>
+                </div>
+            `);
+    },
+
+    updateUserPosition(lat, lng) {
+        if (this.userMarker) {
+            this.userMarker.setLatLng([lat, lng]);
+        } else {
+            this.addUserMarker(lat, lng);
+        }
+    },
+
+    showNearestCinemas(nearestCinemas, userPosition, radius) {
+        // Supprimer les anciens éléments de recherche de proximité
+        this.clearProximityDisplay();
+
+        // Créer un groupe pour les marqueurs des cinémas les plus proches
+        this.nearestMarkersGroup = L.layerGroup().addTo(this.map);
+
+        // Ajouter le cercle de rayon
+        this.radiusCircle = L.circle([userPosition.latitude, userPosition.longitude], {
+            radius: radius * 1000, // Convertir en mètres
+            fillColor: '#d4af37',
+            color: '#d4af37',
+            weight: 2,
+            opacity: 0.6,
+            fillOpacity: 0.1
+        }).addTo(this.map);
+
+        // Ajouter les marqueurs pour les cinémas les plus proches
+        nearestCinemas.forEach((cinema, index) => {
+            const rank = index + 1;
+            const isOpen = this.isCinemaOpen(cinema);
+            
+            const customIcon = L.divIcon({
+                html: `
+                    <div class="proximity-marker ${isOpen ? 'open' : 'closed'}">
+                        <span class="rank">${rank}</span>
+                        <i class="fas fa-film"></i>
+                    </div>
+                `,
+                className: 'custom-proximity-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+
+            const marker = L.marker([cinema.latitude, cinema.longitude], { icon: customIcon })
+                .bindPopup(this.createProximityPopup(cinema, rank))
+                .addTo(this.nearestMarkersGroup);
+
+            // Ajouter une ligne entre l'utilisateur et le cinéma
+            const line = L.polyline([
+                [userPosition.latitude, userPosition.longitude],
+                [cinema.latitude, cinema.longitude]
+            ], {
+                color: '#d4af37',
+                weight: 2,
+                opacity: 0.5,
+                dashArray: '5, 10'
+            }).addTo(this.nearestMarkersGroup);
+        });
+
+        // Ajuster la vue pour inclure tous les points
+        const group = new L.featureGroup([this.userMarker, this.radiusCircle, this.nearestMarkersGroup]);
+        this.map.fitBounds(group.getBounds().pad(0.1));
+    },
+
+    createProximityPopup(cinema, rank) {
+        const isOpen = this.isCinemaOpen(cinema);
+        const walkingTime = Math.ceil(cinema.distance / 5 * 60); // 5km/h
+        const drivingTime = Math.ceil(cinema.distance / 30 * 60); // 30km/h
+
+        return `
+            <div class="proximity-popup">
+                <div class="popup-header">
+                    <div class="rank-badge">#${rank}</div>
+                    <h4>${cinema.nom}</h4>
+                    <div class="status-badge ${isOpen ? 'open' : 'closed'}">
+                        ${isOpen ? 'Ouvert' : 'Fermé'}
+                    </div>
+                </div>
+                
+                <div class="popup-content">
+                    <div class="distance-info">
+                        <div class="distance-main">
+                            <i class="fas fa-route"></i>
+                            <span>${window.GeoUtils.formatDistance(cinema.distance)}</span>
+                        </div>
+                        <div class="time-info">
+                            <span><i class="fas fa-walking"></i> ${walkingTime} min</span>
+                            <span><i class="fas fa-car"></i> ${drivingTime} min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cinema-details">
+                        <p><i class="fas fa-map-marker-alt"></i> ${cinema.adresse}</p>
+                        <div class="details-row">
+                            <span><i class="fas fa-tv"></i> ${cinema.ecrans} écran${cinema.ecrans > 1 ? 's' : ''}</span>
+                            ${cinema.prix_moyen ? `<span><i class="fas fa-euro-sign"></i> ${cinema.prix_moyen}€</span>` : ''}
+                            ${cinema.note ? `<span><i class="fas fa-star"></i> ${cinema.note}/5</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="popup-actions">
+                        <button onclick="window.geolocationManager.navigateTo(${cinema.latitude}, ${cinema.longitude}, '${cinema.nom}')" class="nav-btn">
+                            <i class="fas fa-directions"></i> Itinéraire
+                        </button>
+                        <button onclick="window.geolocationManager.showDetails(${cinema.id})" class="details-btn">
+                            <i class="fas fa-info-circle"></i> Détails
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    clearProximityDisplay() {
+        // Supprimer le cercle de rayon
+        if (this.radiusCircle) {
+            this.map.removeLayer(this.radiusCircle);
+            this.radiusCircle = null;
+        }
+
+        // Supprimer le groupe de marqueurs de proximité
+        if (this.nearestMarkersGroup) {
+            this.map.removeLayer(this.nearestMarkersGroup);
+            this.nearestMarkersGroup = null;
+        }
+    },
+
+    isCinemaOpen(cinema) {
+        if (!cinema.horaires) return true;
+
+        const now = new Date();
+        const currentDay = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'][now.getDay()];
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        const todayHours = cinema.horaires[currentDay];
+        if (!todayHours || todayHours === 'Fermé') return false;
+
+        const [start, end] = todayHours.split('-');
+        if (!start || !end) return true;
+
+        const [startH, startM] = start.split(':').map(n => parseInt(n));
+        const [endH, endM] = end.split(':').map(n => parseInt(n));
+
+        const startTime = startH * 60 + startM;
+        const endTime = endH * 60 + endM;
+
+        return currentTime >= startTime && currentTime <= endTime;
+    },
+
+    // Méthode pour revenir à la vue normale
+    showAllCinemas() {
+        this.clearProximityDisplay();
+        
+        if (this.userMarker) {
+            this.map.removeLayer(this.userMarker);
+            this.userMarker = null;
+        }
+
+        // Réafficher tous les marqueurs
+        this.updateMarkers();
+        
+        // Revenir à la vue d'ensemble de l'Île-de-France
+        this.map.setView([48.8566, 2.3522], 10);
+    }
     }
 });
