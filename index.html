@@ -19,68 +19,69 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- CSS personnalisé -->
+  <link rel="stylesheet" href="assets/css/components.css">
   <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/responsive.css">
 
   <!-- Feuille de style Leaflet -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 </head>
-<body class="bg-cinema-dark text-white font-['Inter'] overflow-x-hidden">
+<body class="main-body">
 
   <!-- Loading Screen -->
-  <div id="loading-screen" class="fixed inset-0 bg-cinema-dark z-50 flex items-center justify-center">
-    <div class="text-center">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cinema-accent mx-auto mb-4"></div>
-      <h2 class="text-2xl font-cinema text-cinema-accent animate-pulse">CinéMap IDF</h2>
-      <p class="text-gray-400 mt-2">Chargement des cinémas...</p>
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2 class="loading-title">CinéMap IDF</h2>
+      <p class="loading-subtitle">Chargement des cinémas...</p>
     </div>
   </div>
 
   <!-- Header -->
-  <header class="bg-gradient-to-r from-cinema-dark via-cinema-medium to-cinema-dark border-b border-cinema-light sticky top-0 z-40 backdrop-blur-sm bg-opacity-95">
-    <div class="container mx-auto px-4 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <div class="bg-cinema-accent p-3 rounded-lg">
-            <i class="fas fa-film text-cinema-dark text-2xl"></i>
+  <header class="main-header">
+    <div class="header-container">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo-icon">
+            <i class="fas fa-film"></i>
           </div>
-          <div>
-            <h1 class="text-3xl font-cinema text-cinema-accent tracking-wider">CinéMap IDF</h1>
-            <p class="text-sm text-gray-400">Explorez les cinémas d'Île-de-France</p>
+          <div class="logo-text">
+            <h1>CinéMap IDF</h1>
+            <p>Explorez les cinémas d'Île-de-France</p>
           </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="hidden md:flex items-center space-x-6">
-          <button id="nav-map" class="nav-btn active px-4 py-2 rounded-lg transition-all duration-300">
-            <i class="fas fa-map-marked-alt mr-2"></i>Carte
+        <nav class="main-nav">
+          <button id="nav-map" class="nav-button active">
+            <i class="fas fa-map-marked-alt"></i>Carte
           </button>
-          <button id="nav-list" class="nav-btn px-4 py-2 rounded-lg transition-all duration-300">
-            <i class="fas fa-list mr-2"></i>Liste
+          <button id="nav-list" class="nav-button">
+            <i class="fas fa-list"></i>Liste
           </button>
-          <button id="nav-stats" class="nav-btn px-4 py-2 rounded-lg transition-all duration-300">
-            <i class="fas fa-chart-bar mr-2"></i>Statistiques
+          <button id="nav-stats" class="nav-button">
+            <i class="fas fa-chart-bar"></i>Statistiques
           </button>
         </nav>
 
         <!-- Mobile menu button -->
-        <button id="mobile-menu-btn" class="md:hidden text-white text-xl">
+        <button id="mobile-menu-btn" class="mobile-menu-btn">
           <i class="fas fa-bars"></i>
         </button>
       </div>
     </div>
 
     <!-- Mobile Navigation -->
-    <div id="mobile-menu" class="md:hidden hidden bg-cinema-medium border-t border-cinema-light">
-      <div class="px-4 py-2 space-y-2">
-        <button class="nav-btn-mobile block w-full text-left px-4 py-3 rounded-lg transition-all duration-300">
-          <i class="fas fa-map-marked-alt mr-3"></i>Carte
+    <div id="mobile-menu" class="mobile-menu hidden">
+      <div class="mobile-menu-content">
+        <button class="mobile-nav-button">
+          <i class="fas fa-map-marked-alt"></i>Carte
         </button>
-        <button class="nav-btn-mobile block w-full text-left px-4 py-3 rounded-lg transition-all duration-300">
-          <i class="fas fa-list mr-3"></i>Liste
+        <button class="mobile-nav-button">
+          <i class="fas fa-list"></i>Liste
         </button>
-        <button class="nav-btn-mobile block w-full text-left px-4 py-3 rounded-lg transition-all duration-300">
-          <i class="fas fa-chart-bar mr-3"></i>Statistiques
+        <button class="mobile-nav-button">
+          <i class="fas fa-chart-bar"></i>Statistiques
         </button>
       </div>
     </div>
@@ -90,36 +91,36 @@
   <main class="relative">
     
     <!-- Filters Panel -->
-    <section id="filters-panel" class="bg-gradient-to-r from-cinema-medium to-cinema-light border-b border-cinema-light">
-      <div class="container mx-auto px-4 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <section id="filters-panel" class="filters-panel">
+      <div class="filters-container">
+        <div class="filters-grid">
           
           <!-- Genre Filter -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-cinema-accent">
-              <i class="fas fa-masks-theater mr-2"></i>Genre
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-masks-theater"></i>Genre
             </label>
-            <select id="genre-filter" class="w-full bg-cinema-dark border border-cinema-light rounded-lg px-4 py-3 text-white focus:border-cinema-accent focus:ring-1 focus:ring-cinema-accent transition-colors">
+            <select id="genre-filter" class="filter-select">
               <option value="all">Tous les genres</option>
             </select>
           </div>
 
           <!-- Department Filter -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-cinema-accent">
-              <i class="fas fa-map-marker-alt mr-2"></i>Département
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-map-marker-alt"></i>Département
             </label>
-            <select id="departement-filter" class="w-full bg-cinema-dark border border-cinema-light rounded-lg px-4 py-3 text-white focus:border-cinema-accent focus:ring-1 focus:ring-cinema-accent transition-colors">
+            <select id="departement-filter" class="filter-select">
               <option value="all">Tous les départements</option>
             </select>
           </div>
 
           <!-- Rating Filter -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-cinema-accent">
-              <i class="fas fa-star mr-2"></i>Note minimum
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-star"></i>Note minimum
             </label>
-            <select id="rating-filter" class="w-full bg-cinema-dark border border-cinema-light rounded-lg px-4 py-3 text-white focus:border-cinema-accent focus:ring-1 focus:ring-cinema-accent transition-colors">
+            <select id="rating-filter" class="filter-select">
               <option value="0">Toutes les notes</option>
               <option value="3">3+ étoiles</option>
               <option value="4">4+ étoiles</option>
@@ -128,11 +129,11 @@
           </div>
 
           <!-- Services Filter -->
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-cinema-accent">
-              <i class="fas fa-cogs mr-2"></i>Services
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-cogs"></i>Services
             </label>
-            <select id="services-filter" class="w-full bg-cinema-dark border border-cinema-light rounded-lg px-4 py-3 text-white focus:border-cinema-accent focus:ring-1 focus:ring-cinema-accent transition-colors">
+            <select id="services-filter" class="filter-select">
               <option value="all">Tous les services</option>
               <option value="IMAX">IMAX</option>
               <option value="4DX">4DX</option>
@@ -143,47 +144,46 @@
           </div>
 
           <!-- Actions -->
-          <div class="flex flex-col space-y-2">
-            <button id="clear-filters" class="bg-cinema-light hover:bg-cinema-medium text-white px-4 py-3 rounded-lg transition-all duration-300 border border-cinema-light hover:border-cinema-accent">
-              <i class="fas fa-eraser mr-2"></i>Réinitialiser
+          <div class="filter-actions">
+            <button id="clear-filters" class="clear-filters-btn">
+              <i class="fas fa-eraser"></i>Réinitialiser
             </button>
-            <button id="geolocation-btn" class="bg-cinema-red hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-all duration-300">
-              <i class="fas fa-location-arrow mr-2"></i>Ma position
+            <button id="geolocation-btn" class="geolocation-btn">
+              <i class="fas fa-location-arrow"></i>Ma position
             </button>
           </div>
 
         </div>
 
         <!-- Search Bar -->
-        <div class="mt-4">
-          <div class="relative max-w-md mx-auto">
-            <input type="text" id="search-input" placeholder="Rechercher un cinéma..." 
-                   class="w-full bg-cinema-dark border border-cinema-light rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-400 focus:border-cinema-accent focus:ring-1 focus:ring-cinema-accent transition-colors">
-            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <div class="search-section">
+          <div class="search-wrapper">
+            <input type="text" id="search-input" placeholder="Rechercher un cinéma..." class="search-input">
+            <i class="fas fa-search search-icon"></i>
           </div>
         </div>
 
         <!-- Results Counter -->
-        <div class="mt-4 text-center">
-          <span id="results-counter" class="text-sm text-gray-400">
-            <i class="fas fa-film mr-2"></i><span id="results-count">0</span> cinémas trouvés
+        <div class="results-counter">
+          <span id="results-counter" class="results-text">
+            <i class="fas fa-film"></i><span id="results-count">0</span> cinémas trouvés
           </span>
         </div>
       </div>
     </section>
 
     <!-- Content Sections -->
-    <div class="relative">
+    <div class="content-wrapper">
       
       <!-- Map Section -->
-      <section id="map-section" class="content-section active min-h-screen relative">
-        <div id="map" class="h-screen w-full"></div>
+      <section id="map-section" class="content-section active map-section">
+        <div id="map" class="map-container"></div>
         
         <!-- Map Controls -->
-        <div class="absolute top-4 right-4 z-30 space-y-2">
-          <div class="bg-cinema-medium bg-opacity-90 backdrop-blur-sm rounded-lg p-3 border border-cinema-light">
-            <label class="block text-sm font-medium text-cinema-accent mb-2">Style de carte</label>
-            <select id="map-style-select" class="bg-cinema-dark border border-cinema-light rounded px-3 py-2 text-white text-sm focus:border-cinema-accent">
+        <div class="map-controls">
+          <div class="map-control-panel">
+            <label class="map-control-label">Style de carte</label>
+            <select id="map-style-select" class="map-style-select">
               <option value="osm">Classique</option>
               <option value="satellite">Satellite</option>
               <option value="dark">Sombre</option>
@@ -193,27 +193,27 @@
       </section>
 
       <!-- List Section -->
-      <section id="list-section" class="content-section hidden min-h-screen bg-cinema-medium">
-        <div class="container mx-auto px-4 py-8">
-          <div class="grid gap-6" id="cinemas-grid">
+      <section id="list-section" class="content-section hidden list-section">
+        <div class="list-container">
+          <div class="cinemas-grid" id="cinemas-grid">
             <!-- Cinema cards will be inserted here -->
           </div>
         </div>
       </section>
 
       <!-- Statistics Section -->
-      <section id="stats-section" class="content-section hidden min-h-screen bg-cinema-medium">
-        <div class="container mx-auto px-4 py-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <section id="stats-section" class="content-section hidden stats-section">
+        <div class="stats-container">
+          <div class="stats-cards-grid">
             <!-- Stats cards will be inserted here -->
           </div>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-cinema-dark rounded-xl p-6 border border-cinema-light">
-              <h3 class="text-xl font-semibold text-cinema-accent mb-4">Répartition par département</h3>
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3 class="chart-title">Répartition par département</h3>
               <canvas id="department-chart"></canvas>
             </div>
-            <div class="bg-cinema-dark rounded-xl p-6 border border-cinema-light">
-              <h3 class="text-xl font-semibold text-cinema-accent mb-4">Genres les plus populaires</h3>
+            <div class="chart-card">
+              <h3 class="chart-title">Genres les plus populaires</h3>
               <canvas id="genres-chart"></canvas>
             </div>
           </div>
@@ -225,8 +225,8 @@
   </main>
 
   <!-- Cinema Detail Modal -->
-  <div id="cinema-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-cinema-dark rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-cinema-light">
+  <div id="cinema-modal" class="cinema-modal hidden">
+    <div class="modal-content">
       <div id="modal-content">
         <!-- Modal content will be inserted here -->
       </div>
@@ -234,21 +234,21 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-cinema-dark border-t border-cinema-light py-8">
-    <div class="container mx-auto px-4 text-center">
-      <div class="flex items-center justify-center mb-4">
-        <div class="bg-cinema-accent p-2 rounded-lg mr-3">
-          <i class="fas fa-film text-cinema-dark text-xl"></i>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-logo">
+        <div class="footer-logo-icon">
+          <i class="fas fa-film"></i>
         </div>
-        <h3 class="text-xl font-cinema text-cinema-accent">CinéMap IDF</h3>
+        <h3 class="footer-title">CinéMap IDF</h3>
       </div>
-      <p class="text-gray-400 mb-4">Votre guide pour découvrir les cinémas d'Île-de-France</p>
-      <div class="flex items-center justify-center space-x-4 text-sm text-gray-500">
+      <p class="footer-subtitle">Votre guide pour découvrir les cinémas d'Île-de-France</p>
+      <div class="footer-info">
         <span>&copy; 2024 CinéMap IDF</span>
         <span>•</span>
         <span>Données mises à jour quotidiennement</span>
         <span>•</span>
-        <span><i class="fas fa-heart text-red-500"></i> Fait avec passion</span>
+        <span><i class="fas fa-heart footer-heart"></i> Fait avec passion</span>
       </div>
     </div>
   </footer>
