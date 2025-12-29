@@ -384,6 +384,8 @@ class MapManager {
 Object.assign(CinemaApp.prototype, {
     initializeMap() {
         this.mapManager = new MapManager(this);
+        // Exposer mapManager globalement pour les autres modules
+        window.mapManager = this.mapManager;
         this.mapManager.addCustomMarkerStyles();
         this.mapManager.initialize();
         this.updateMapMarkers();
