@@ -111,6 +111,7 @@
   border-radius: 3px;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .radius-selector input[type="range"]::-webkit-slider-thumb {
@@ -156,6 +157,7 @@
   border-radius: 3px;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .price-selector input[type="range"]::-webkit-slider-thumb {

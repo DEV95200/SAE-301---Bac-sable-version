@@ -598,5 +598,4 @@ Object.assign(CinemaApp.prototype, {
         // Revenir à la vue d'ensemble de l'Île-de-France
         this.map.setView([48.8566, 2.3522], 10);
     }
-    }
 });
