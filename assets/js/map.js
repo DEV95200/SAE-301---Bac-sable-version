@@ -384,6 +384,9 @@ class MapManager {
 window.MapManager = MapManager;
 
 console.log('✅ MapManager class loaded and available globally');
+
+// Additional methods (these should be part of a different class or object)
+const MapExtensions = {
     initializeMap() {
         this.mapManager = new MapManager(this);
         // Exposer mapManager globalement pour les autres modules
@@ -672,4 +675,4 @@ console.log('✅ MapManager class loaded and available globally');
         // Revenir à la vue d'ensemble de l'Île-de-France
         this.map.setView([48.8566, 2.3522], 10);
     }
-});
+};
