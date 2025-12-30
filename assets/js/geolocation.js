@@ -229,9 +229,13 @@ class GeolocationManager {
       this.updateStatus(`Position trouvée: ${position.accuracy}m de précision`, 'success');
       
       // Centrer la carte sur la position de l'utilisateur
-      if (window.mapManager) {
-        window.mapManager.centerOnPosition(position.latitude, position.longitude);
-        window.mapManager.addUserMarker(position.latitude, position.longitude);
+      const mapManager = this.app.mapManager || window.mapManager;
+      if (mapManager) {
+        console.log('🎯 Centrage et ajout marqueur utilisateur');
+        mapManager.centerOnPosition(position.latitude, position.longitude);
+        mapManager.addUserMarker(position.latitude, position.longitude);
+      } else {
+        console.warn('⚠️ MapManager non disponible');
       }
 
       return position;
