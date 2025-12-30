@@ -629,6 +629,47 @@ class CinemaApp {
         }, 4000);
     }
 
+    initializeMap() {
+        console.log('🗺️ Initialisation de la carte...');
+        
+        if (window.MapManager) {
+            try {
+                this.mapManager = new MapManager(this);
+                // Exposer mapManager globalement pour les autres modules
+                window.mapManager = this.mapManager;
+                
+                // Initialiser la carte
+                this.mapManager.initialize();
+                
+                // Ajouter les styles personnalisés
+                this.mapManager.addCustomMarkerStyles();
+                
+                // Mettre à jour les marqueurs
+                this.updateMapMarkers();
+                
+                console.log('✅ Carte initialisée avec succès');
+            } catch (error) {
+                console.error('❌ Erreur lors de l\'initialisation de la carte:', error);
+                this.showError('Erreur lors du chargement de la carte');
+            }
+        } else {
+            console.warn('⚠️ MapManager non disponible');
+            setTimeout(() => this.initializeMap(), 1000); // Retry après 1 seconde
+        }
+    }
+    
+    updateMapMarkers() {
+        if (this.mapManager) {
+            this.mapManager.updateMarkers(this.filteredCinemas);
+        }
+    }
+    
+    showUserLocationOnMap() {
+        if (this.mapManager && this.userLocation) {
+            this.mapManager.showUserLocation(this.userLocation);
+        }
+    }
+
     initializeGeolocation() {
         if (window.GeolocationManager) {
             window.geolocationManager = new GeolocationManager(this);

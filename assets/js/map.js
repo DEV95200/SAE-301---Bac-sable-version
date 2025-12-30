@@ -380,8 +380,10 @@ class MapManager {
     }
 }
 
-// Extend the CinemaApp with map functionality
-Object.assign(CinemaApp.prototype, {
+// Exposition globale de MapManager
+window.MapManager = MapManager;
+
+console.log('✅ MapManager class loaded and available globally');
     initializeMap() {
         this.mapManager = new MapManager(this);
         // Exposer mapManager globalement pour les autres modules
