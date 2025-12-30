@@ -454,117 +454,73 @@ class GeolocationManager {
   }
 
   navigateTo(lat, lng, name) {
-    console.log('Navigation vers:', name, 'Position:', lat, lng);
-    console.log('MapManager disponible:', !!window.mapManager);
-    console.log('Position utilisateur:', this.userPosition);
-    console.log('App currentView:', this.app.currentView);
-
-    // FORCER l'utilisation de la carte interne - PAS de Google Maps
-    
-    // Basculer vers la vue carte si on n'y est pas
-    if (this.app.currentView !== 'map') {
-      console.log('Basculement vers la vue carte...');
-      this.app.switchView('map');
-    }
-
-    // Fermer le panneau de géolocalisation
-    this.hidePanel();
-
-    // Attendre que la vue se charge complètement
-    setTimeout(() => {
-      if (window.mapManager && window.mapManager.map) {
-        console.log('Affichage de l\'itinéraire sur la carte...');
-        
-        // Nettoyer d'abord les anciens affichages
-        if (window.mapManager.clearProximityDisplay) {
-          window.mapManager.clearProximityDisplay();
-        }
-        
-        // Si on a la position utilisateur ET la méthode showRouteToDestination
-        if (this.userPosition && window.mapManager.showRouteToDestination) {
-          window.mapManager.showRouteToDestination(
-            this.userPosition.latitude, 
-            this.userPosition.longitude, 
-            lat, 
-            lng, 
-            name
-          );
-        } else {
-          // Sinon, centrer la carte sur la destination avec un beau marqueur
-          console.log('Affichage simple de la destination...');
-          
-          // Centrer et zoomer sur la destination
-          window.mapManager.map.setView([lat, lng], 16);
-          
-          // Supprimer l'ancien marqueur de destination s'il existe
-          if (window.mapManager.destinationMarker) {
-            window.mapManager.map.removeLayer(window.mapManager.destinationMarker);
-          }
-          
-          // Créer un marqueur spécial pour la destination
-          const destIcon = L.divIcon({
-            className: 'cinema-marker cinema-marker-highlighted',
-            html: '<div class="marker-inner"><i class="fas fa-film"></i></div>',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
-          });
-          
-          window.mapManager.destinationMarker = L.marker([lat, lng], { icon: destIcon })
-            .addTo(window.mapManager.map)
-            .bindPopup(`<div class="popup-content"><strong>${name}</strong><br><i class="fas fa-map-marker-alt"></i> Destination sélectionnée</div>`)
-            .openPopup();
-        }
-
-        // Notification de succès
-        window.ToastManager.show(`${name} affiché sur la carte`, 'success');
-      } else {
-        console.error('MapManager ou carte non disponible');
-        window.ToastManager.show('Erreur: Impossible d\'afficher sur la carte', 'error');
+    // Afficher l'itinéraire sur la carte interne
+    if (window.mapManager && this.userPosition) {
+      // Basculer vers la vue carte si on n'y est pas
+      if (this.app.currentView !== 'map') {
+        this.app.switchView('map');
       }
-    }, 300); // Délai réduit pour une réaction plus rapide
+
+      // Fermer le panneau de géolocalisation
+      this.hidePanel();
+
+      // Créer l'itinéraire sur la carte
+      window.mapManager.showRouteToDestination(
+        this.userPosition.latitude, 
+        this.userPosition.longitude, 
+        lat, 
+        lng, 
+        name
+      );
+
+      // Notification de succès
+      window.ToastManager.show(`Itinéraire vers ${name} affiché sur la carte`, 'success');
+    } else {
+      // Fallback vers Google Maps si pas de position utilisateur
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
+      let url;
+      if (isMobile) {
+        if (isIOS) {
+          url = `maps://maps.google.com/maps?daddr=${lat},${lng}&amp;ll=`;
+        } else {
+          url = `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(name)})`;
+        }
+      } else {
+        url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${encodeURIComponent(name)}`;
+      }
+      
+      window.open(url, '_blank');
+      window.ToastManager.show(`Ouverture de l'itinéraire vers ${name}`, 'info');
+    }
   }
 
   showDetails(cinemaId) {
     console.log('Tentative d\'ouverture des détails pour le cinéma ID:', cinemaId);
-    console.log('Type de cinemaId:', typeof cinemaId);
-    console.log('App disponible:', !!this.app);
-    console.log('Cinemas disponibles:', !!this.app.cinemas);
-    console.log('Nombre de cinémas:', this.app.cinemas ? this.app.cinemas.length : 0);
     
-    // Convertir l'ID en nombre
-    const numericId = parseInt(cinemaId);
-    console.log('ID numérique:', numericId);
-    
-    const cinema = this.app.cinemas.find(c => {
-      console.log('Comparaison: cinema.id =', c.id, ', recherché =', numericId);
-      return c.id === numericId;
-    });
+    const cinema = this.app.cinemas.find(c => c.id === parseInt(cinemaId));
     
     if (cinema) {
       console.log('Cinéma trouvé:', cinema.nom);
       
-      // Vérifier si cinemaApp existe et a la méthode showCinemaDetails
-      if (window.cinemaApp && typeof window.cinemaApp.showCinemaDetails === 'function') {
-        console.log('Méthode showCinemaDetails trouvée');
-        
+      // Vérifier si le modal manager existe
+      if (window.modalManager) {
         // Fermer le panneau de géolocalisation
         this.hidePanel();
         
         // Attendre un peu que le panneau se ferme puis ouvrir la modal
         setTimeout(() => {
-          window.cinemaApp.showCinemaDetails(cinema.id);
+          window.modalManager.showCinemaDetails(cinema);
         }, 300);
         
         window.ToastManager.show(`Ouverture des détails de ${cinema.nom}`, 'info');
       } else {
-        console.error('cinemaApp ou showCinemaDetails non disponible');
-        console.log('window.cinemaApp:', !!window.cinemaApp);
-        console.log('showCinemaDetails method:', typeof (window.cinemaApp && window.cinemaApp.showCinemaDetails));
-        window.ToastManager.show('Erreur: Fonctionnalité non disponible', 'error');
+        console.error('Modal manager non disponible');
+        window.ToastManager.show('Erreur: Impossible d\'ouvrir les détails', 'error');
       }
     } else {
-      console.error('Cinéma non trouvé avec l\'ID:', numericId);
-      console.log('IDs disponibles:', this.app.cinemas.map(c => c.id));
+      console.error('Cinéma non trouvé avec l\'ID:', cinemaId);
       window.ToastManager.show('Erreur: Cinéma non trouvé', 'error');
     }
   }
