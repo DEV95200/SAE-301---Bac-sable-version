@@ -229,9 +229,10 @@ class GeolocationManager {
       this.updateStatus(`Position trouvée: ${position.accuracy}m de précision`, 'success');
       
       // Centrer la carte sur la position de l'utilisateur
-      if (window.mapManager) {
-        window.mapManager.centerOnPosition(position.latitude, position.longitude);
-        window.mapManager.addUserMarker(position.latitude, position.longitude);
+      const mapManager = this.app.mapManager || window.mapManager;
+      if (mapManager) {
+        mapManager.centerOnPosition(position.latitude, position.longitude);
+        mapManager.addUserMarker(position.latitude, position.longitude);
       }
 
       return position;
@@ -279,8 +280,9 @@ class GeolocationManager {
           
           // Afficher le trajet vers la meilleure destination
           setTimeout(() => {
-            if (window.mapManager && window.mapManager.showRouteToDestination) {
-              window.mapManager.showRouteToDestination(
+            const mapManager = this.app.mapManager || window.mapManager;
+            if (mapManager && mapManager.showRouteToDestination) {
+              mapManager.showRouteToDestination(
                 this.userPosition.latitude,
                 this.userPosition.longitude,
                 bestCinema.latitude,
@@ -292,8 +294,9 @@ class GeolocationManager {
         }
         
         // Mettre à jour la carte
-        if (window.mapManager) {
-          window.mapManager.showNearestCinemas(this.nearestCinemas, this.userPosition, this.searchRadius);
+        const mapManager = this.app.mapManager || window.mapManager;
+        if (mapManager) {
+          mapManager.showNearestCinemas(this.nearestCinemas, this.userPosition, this.searchRadius);
         }
       }
 
@@ -482,15 +485,31 @@ class GeolocationManager {
   }
 
   navigateTo(lat, lng, name) {
-    console.log('Navigation vers:', name, 'Position:', lat, lng);
-    console.log('MapManager disponible:', !!window.mapManager);
-    console.log('Position utilisateur:', this.userPosition);
+    console.log('🎥 Début navigation vers:', name);
+    console.log('- Position:', lat, lng);
+    console.log('- window.mapManager:', !!window.mapManager);
+    console.log('- this.app.mapManager:', !!this.app.mapManager);
+    console.log('- Position utilisateur:', this.userPosition);
 
-    // FORCER l'utilisation de la carte interne - PAS de Google Maps
+    // Utiliser la référence correcte (priorité à l'app)
+    const mapManager = this.app.mapManager || window.mapManager;
+    console.log('- MapManager sélectionné:', !!mapManager);
+    
+    if (!mapManager) {
+      console.error('❌ MapManager non disponible');
+      window.ToastManager.show('Erreur: Gestionnaire de carte non disponible', 'error');
+      return;
+    }
+    
+    if (!mapManager.map) {
+      console.error('❌ Carte non initialisée');
+      window.ToastManager.show('Erreur: Carte non initialisée', 'error');
+      return;
+    }
     
     // Basculer vers la vue carte si on n'y est pas
     if (this.app.currentView !== 'map') {
-      console.log('Basculement vers la vue carte...');
+      console.log('- Basculement vers la vue carte...');
       this.app.switchView('map');
     }
 
@@ -499,13 +518,11 @@ class GeolocationManager {
 
     // Attendre que la vue se charge complètement
     setTimeout(() => {
-      if (window.mapManager && window.mapManager.map) {
-        console.log('Affichage du trajet sur la carte...');
-        
+      try {
         // Si on a la position utilisateur ET la méthode showRouteToDestination
-        if (this.userPosition && window.mapManager.showRouteToDestination) {
-          console.log('Affichage du trajet complet avec position utilisateur');
-          window.mapManager.showRouteToDestination(
+        if (this.userPosition && mapManager.showRouteToDestination) {
+          console.log('🎯 Affichage du trajet complet avec position utilisateur');
+          mapManager.showRouteToDestination(
             this.userPosition.latitude, 
             this.userPosition.longitude, 
             lat, 
@@ -515,14 +532,14 @@ class GeolocationManager {
           window.ToastManager.show(`🎬 Trajet vers ${name} affiché`, 'success');
         } else {
           // MÊME sans position utilisateur, afficher la destination sur la carte interne
-          console.log('Affichage de la destination sans position utilisateur');
+          console.log('🎯 Affichage simple de la destination');
           
           // Centrer et zoomer sur la destination
-          window.mapManager.map.setView([lat, lng], 16);
+          mapManager.map.setView([lat, lng], 16);
           
           // Supprimer l'ancien marqueur de destination s'il existe
-          if (window.mapManager.destinationMarker) {
-            window.mapManager.map.removeLayer(window.mapManager.destinationMarker);
+          if (mapManager.destinationMarker) {
+            mapManager.map.removeLayer(mapManager.destinationMarker);
           }
           
           // Créer un marqueur spécial pour la destination
@@ -537,8 +554,8 @@ class GeolocationManager {
             iconAnchor: [22, 22]
           });
           
-          window.mapManager.destinationMarker = L.marker([lat, lng], { icon: destIcon })
-            .addTo(window.mapManager.map)
+          mapManager.destinationMarker = L.marker([lat, lng], { icon: destIcon })
+            .addTo(mapManager.map)
             .bindPopup(`
               <div class="popup-content cinema-popup">
                 <h4 style="color: #d4af37; margin: 0;"><i class="fas fa-star"></i> ${name}</h4>
@@ -561,9 +578,9 @@ class GeolocationManager {
           
           window.ToastManager.show(`🎯 ${name} affiché sur la carte`, 'success');
         }
-      } else {
-        console.error('MapManager ou carte non disponible');
-        window.ToastManager.show('Erreur: Impossible d\'afficher sur la carte', 'error');
+      } catch (error) {
+        console.error('❌ Erreur lors de l\'affichage:', error);
+        window.ToastManager.show('Erreur lors de l\'affichage du trajet', 'error');
       }
     }, 300);
   }
@@ -647,8 +664,9 @@ class GeolocationManager {
         };
 
         // Mettre à jour la carte
-        if (window.mapManager) {
-          window.mapManager.updateUserPosition(this.userPosition.latitude, this.userPosition.longitude);
+        const mapManager = this.app.mapManager || window.mapManager;
+        if (mapManager) {
+          mapManager.updateUserPosition(this.userPosition.latitude, this.userPosition.longitude);
         }
 
         // Relancer la recherche si nécessaire
