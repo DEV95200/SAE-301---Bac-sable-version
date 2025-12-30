@@ -590,58 +590,83 @@ class MapManager {
     showNearestCinemas(nearestCinemas, userPosition, radius) {
         console.log(`🎯 Affichage de ${nearestCinemas.length} cinémas les plus proches`);
         
-        // Supprimer les anciens éléments de recherche de proximité
-        this.clearProximityDisplay();
+        try {
+            // Supprimer les anciens éléments de recherche de proximité
+            this.clearProximityDisplay();
 
-        // Créer un groupe pour les marqueurs des cinémas les plus proches
-        this.nearestMarkersGroup = L.layerGroup().addTo(this.map);
+            // Vérifier que la carte existe
+            if (!this.map) {
+                console.error('❌ Carte non initialisée');
+                return;
+            }
 
-        // Ajouter le cercle de rayon
-        this.radiusCircle = L.circle([userPosition.latitude, userPosition.longitude], {
-            radius: radius * 1000, // Convertir en mètres
-            fillColor: '#d4af37',
-            color: '#d4af37',
-            weight: 2,
-            opacity: 0.6,
-            fillOpacity: 0.1
-        }).addTo(this.map);
+            // Créer un groupe pour les marqueurs des cinémas les plus proches
+            this.nearestMarkersGroup = L.layerGroup().addTo(this.map);
 
-        // Ajouter les marqueurs pour les cinémas les plus proches
-        nearestCinemas.forEach((cinema, index) => {
-            const rank = index + 1;
-            const isOpen = this.isCinemaOpen(cinema);
-            
-            const customIcon = L.divIcon({
-                html: `
-                    <div class="proximity-marker ${isOpen ? 'open' : 'closed'}">
-                        <span class="rank">${rank}</span>
-                        <i class="fas fa-film"></i>
-                    </div>
-                `,
-                className: 'custom-proximity-marker',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40]
-            });
-
-            const marker = L.marker([cinema.latitude, cinema.longitude], { icon: customIcon })
-                .bindPopup(this.createProximityPopup(cinema, rank))
-                .addTo(this.nearestMarkersGroup);
-
-            // Ajouter une ligne entre l'utilisateur et le cinéma
-            const line = L.polyline([
-                [userPosition.latitude, userPosition.longitude],
-                [cinema.latitude, cinema.longitude]
-            ], {
+            // Ajouter le cercle de rayon
+            this.radiusCircle = L.circle([userPosition.latitude, userPosition.longitude], {
+                radius: radius * 1000, // Convertir en mètres
+                fillColor: '#d4af37',
                 color: '#d4af37',
                 weight: 2,
-                opacity: 0.5,
-                dashArray: '5, 10'
-            }).addTo(this.nearestMarkersGroup);
-        });
+                opacity: 0.6,
+                fillOpacity: 0.1
+            }).addTo(this.map);
 
-        // Ajuster la vue pour inclure tous les points
-        const group = new L.featureGroup([this.userMarker, this.radiusCircle, this.nearestMarkersGroup]);
-        this.map.fitBounds(group.getBounds().pad(0.1));
+            // Ajouter les marqueurs pour les cinémas les plus proches
+            nearestCinemas.forEach((cinema, index) => {
+                const rank = index + 1;
+                const isOpen = this.isCinemaOpen(cinema);
+                
+                const customIcon = L.divIcon({
+                    html: `
+                        <div class="proximity-marker ${isOpen ? 'open' : 'closed'}">
+                            <span class="rank">${rank}</span>
+                            <i class="fas fa-film"></i>
+                        </div>
+                    `,
+                    className: 'custom-proximity-marker',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
+                });
+
+                const marker = L.marker([cinema.latitude, cinema.longitude], { icon: customIcon })
+                    .bindPopup(this.createProximityPopup(cinema, rank))
+                    .addTo(this.nearestMarkersGroup);
+
+                // Ajouter une ligne entre l'utilisateur et le cinéma
+                const line = L.polyline([
+                    [userPosition.latitude, userPosition.longitude],
+                    [cinema.latitude, cinema.longitude]
+                ], {
+                    color: '#d4af37',
+                    weight: 2,
+                    opacity: 0.5,
+                    dashArray: '5, 10'
+                }).addTo(this.nearestMarkersGroup);
+            });
+
+            // Ajuster la vue pour inclure tous les points
+            const bounds = L.latLngBounds();
+            
+            // Ajouter les positions à la bounds
+            bounds.extend([userPosition.latitude, userPosition.longitude]);
+            
+            nearestCinemas.forEach(cinema => {
+                bounds.extend([cinema.latitude, cinema.longitude]);
+            });
+            
+            // Ajuster la carte
+            if (bounds.isValid()) {
+                this.map.fitBounds(bounds.pad(0.1));
+            }
+            
+            console.log('✅ Cinémas proches affichés avec succès');
+            
+        } catch (error) {
+            console.error('❌ Erreur dans showNearestCinemas:', error);
+            throw error;
+        }
     }
 
     createProximityPopup(cinema, rank) {

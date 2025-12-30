@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Debug Géolocalisation</title>
+    
+    <!-- CSS des components pour styles nécessaires -->
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/geolocation.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Inter, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .debug-panel {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .debug-section {
+            background: #2a2a2a;
+            border: 1px solid #d4af37;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .debug-title {
+            color: #d4af37;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-btn {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+        }
+        .test-btn:hover {
+            background: #b8941f;
+        }
+        .log-area {
+            background: #0f0f0f;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        #map { 
+            height: 300px; 
+            width: 100%; 
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <div class="debug-section">
+            <h3 class="debug-title">
+                <i class="fas fa-bug"></i> Tests Components
+            </h3>
+            <button class="test-btn" onclick="testClasses()">Test Classes</button>
+            <button class="test-btn" onclick="testMapManager()">Test MapManager</button>
+            <button class="test-btn" onclick="testGeoUtils()">Test GeoUtils</button>
+            <div id="component-log" class="log-area"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3 class="debug-title">
+                <i class="fas fa-map-marked-alt"></i> Tests Géolocalisation
+            </h3>
+            <button class="test-btn" onclick="testPositionSimulee()">Position Simulée</button>
+            <button class="test-btn" onclick="testRechercheProximite()">Recherche Proximité</button>
+            <button class="test-btn" onclick="clearMap()">Clear Map</button>
+            <div id="geo-log" class="log-area"></div>
+        </div>
+
+        <div class="debug-section full-width">
+            <h3 class="debug-title">
+                <i class="fas fa-map"></i> Carte de Test
+            </h3>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/map.js"></script>
+    
+    <script>
+        let testCinemas = [];
+        let appInstance = null;
+        
+        // Création d'une instance app simulée
+        class MockCinemaApp {
+            constructor() {
+                this.cinemas = [];
+                this.filteredCinemas = [];
+                this.map = null;
+                this.markerClusterGroup = null;
+            }
+            
+            generateStars(rating) {
+                const stars = [];
+                const fullStars = Math.floor(rating || 4.5);
+                for (let i = 0; i < fullStars; i++) {
+                    stars.push('<i class="fas fa-star"></i>');
+                }
+                const emptyStars = 5 - fullStars;
+                for (let i = 0; i < emptyStars; i++) {
+                    stars.push('<i class="far fa-star"></i>');
+                }
+                return stars.join('');
+            }
+        }
+
+        function log(area, message, type = 'info') {
+            const logArea = document.getElementById(area + '-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            logArea.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function testClasses() {
+            log('component', '🧪 Test des classes...', 'info');
+            
+            const classes = ['ToastManager', 'GeoUtils', 'MapManager'];
+            classes.forEach(className => {
+                if (window[className]) {
+                    log('component', `✅ ${className} disponible`, 'success');
+                } else {
+                    log('component', `❌ ${className} manquante`, 'error');
+                }
+            });
+        }
+
+        function testMapManager() {
+            log('component', '🗺️ Test MapManager...', 'info');
+            
+            try {
+                if (!appInstance) {
+                    appInstance = new MockCinemaApp();
+                    log('component', '✅ App simulée créée', 'success');
+                }
+                
+                if (!window.mapManager) {
+                    const mapMgr = new MapManager(appInstance);
+                    mapMgr.initialize();
+                    log('component', '✅ MapManager initialisé', 'success');
+                } else {
+                    log('component', '✅ MapManager déjà disponible', 'success');
+                }
+
+                // Test des méthodes critiques
+                const methods = ['showNearestCinemas', 'centerOnPosition', 'clearProximityDisplay'];
+                methods.forEach(method => {
+                    if (typeof window.mapManager[method] === 'function') {
+                        log('component', `✅ Méthode ${method} OK`, 'success');
+                    } else {
+                        log('component', `❌ Méthode ${method} manquante`, 'error');
+                    }
+                });
+
+            } catch (error) {
+                log('component', `❌ Erreur MapManager: ${error.message}`, 'error');
+            }
+        }
+
+        function testGeoUtils() {
+            log('component', '📍 Test GeoUtils...', 'info');
+            
+            try {
+                // Test calcul de distance
+                const distance = window.GeoUtils.calculateDistance(48.8566, 2.3522, 48.8606, 2.3472);
+                log('component', `✅ Distance calculée: ${distance.toFixed(2)} km`, 'success');
+                
+                // Test formatage
+                const formatted = window.GeoUtils.formatDistance(distance);
+                log('component', `✅ Distance formatée: ${formatted}`, 'success');
+
+            } catch (error) {
+                log('component', `❌ Erreur GeoUtils: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPositionSimulee() {
+            log('geo', '🎯 Test position simulée...', 'info');
+            
+            try {
+                const fakePos = {
+                    latitude: 48.8566,
+                    longitude: 2.3522
+                };
+
+                if (window.mapManager && window.mapManager.map) {
+                    window.mapManager.centerOnPosition(fakePos.latitude, fakePos.longitude);
+                    window.mapManager.addUserMarker(fakePos.latitude, fakePos.longitude);
+                    log('geo', `✅ Position simulée: ${fakePos.latitude}, ${fakePos.longitude}`, 'success');
+                } else {
+                    log('geo', '❌ MapManager ou carte non disponible', 'error');
+                }
+
+            } catch (error) {
+                log('geo', `❌ Erreur position: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRechercheProximite() {
+            log('geo', '🔍 Test recherche proximité...', 'info');
+            
+            try {
+                // Charger les données si pas déjà fait
+                if (testCinemas.length === 0) {
+                    log('geo', '📡 Chargement des données...', 'info');
+                    const response = await fetch('./include/cinemas_data.json');
+                    const data = await response.json();
+                    testCinemas = data.cinemas;
+                    appInstance.cinemas = testCinemas;
+                    log('geo', `✅ ${testCinemas.length} cinémas chargés`, 'success');
+                }
+
+                const userPos = { latitude: 48.8566, longitude: 2.3522 };
+                
+                // Calculer les distances et prendre les 5 premiers
+                const nearestCinemas = testCinemas
+                    .map(cinema => ({
+                        ...cinema,
+                        distance: window.GeoUtils.calculateDistance(
+                            userPos.latitude, userPos.longitude,
+                            cinema.latitude, cinema.longitude
+                        )
+                    }))
+                    .sort((a, b) => a.distance - b.distance)
+                    .slice(0, 5);
+
+                log('geo', `🎯 ${nearestCinemas.length} cinémas les plus proches trouvés`, 'success');
+
+                // Test de la méthode showNearestCinemas
+                if (window.mapManager && typeof window.mapManager.showNearestCinemas === 'function') {
+                    window.mapManager.showNearestCinemas(nearestCinemas, userPos, 10);
+                    log('geo', '✅ showNearestCinemas appelée avec succès', 'success');
+                    
+                    // Log des cinémas trouvés
+                    nearestCinemas.forEach((cinema, i) => {
+                        log('geo', `${i+1}. ${cinema.nom} - ${cinema.distance.toFixed(1)}km`, 'info');
+                    });
+                } else {
+                    log('geo', '❌ Méthode showNearestCinemas non disponible', 'error');
+                }
+
+            } catch (error) {
+                log('geo', `❌ Erreur recherche: ${error.message}`, 'error');
+                console.error('Erreur détaillée:', error);
+            }
+        }
+
+        function clearMap() {
+            if (window.mapManager) {
+                window.mapManager.clearProximityDisplay();
+                log('geo', '🧹 Carte nettoyée', 'info');
+            }
+        }
+
+        // Initialisation automatique
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testClasses();
+                testMapManager();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
