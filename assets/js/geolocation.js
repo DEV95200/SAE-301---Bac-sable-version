@@ -229,10 +229,9 @@ class GeolocationManager {
       this.updateStatus(`Position trouvée: ${position.accuracy}m de précision`, 'success');
       
       // Centrer la carte sur la position de l'utilisateur
-      const mapManager = this.app.mapManager || window.mapManager;
-      if (mapManager) {
-        mapManager.centerOnPosition(position.latitude, position.longitude);
-        mapManager.addUserMarker(position.latitude, position.longitude);
+      if (window.mapManager) {
+        window.mapManager.centerOnPosition(position.latitude, position.longitude);
+        window.mapManager.addUserMarker(position.latitude, position.longitude);
       }
 
       return position;
@@ -274,29 +273,9 @@ class GeolocationManager {
         this.updateStatus(`${this.nearestCinemas.length} cinéma(s) trouvé(s)`, 'success');
         this.displayResults();
         
-        // Afficher automatiquement la meilleure destination (la plus proche)
-        if (this.nearestCinemas.length > 0) {
-          const bestCinema = this.nearestCinemas[0]; // Le premier est le plus proche
-          
-          // Afficher le trajet vers la meilleure destination
-          setTimeout(() => {
-            const mapManager = this.app.mapManager || window.mapManager;
-            if (mapManager && mapManager.showRouteToDestination) {
-              mapManager.showRouteToDestination(
-                this.userPosition.latitude,
-                this.userPosition.longitude,
-                bestCinema.latitude,
-                bestCinema.longitude,
-                bestCinema.nom
-              );
-            }
-          }, 1000);
-        }
-        
         // Mettre à jour la carte
-        const mapManager = this.app.mapManager || window.mapManager;
-        if (mapManager) {
-          mapManager.showNearestCinemas(this.nearestCinemas, this.userPosition, this.searchRadius);
+        if (window.mapManager) {
+          window.mapManager.showNearestCinemas(this.nearestCinemas, this.userPosition, this.searchRadius);
         }
       }
 
@@ -485,104 +464,46 @@ class GeolocationManager {
   }
 
   navigateTo(lat, lng, name) {
-    console.log('🎥 Début navigation vers:', name);
-    console.log('- Position:', lat, lng);
-    console.log('- window.mapManager:', !!window.mapManager);
-    console.log('- this.app.mapManager:', !!this.app.mapManager);
-    console.log('- Position utilisateur:', this.userPosition);
-
-    // Utiliser la référence correcte (priorité à l'app)
-    const mapManager = this.app.mapManager || window.mapManager;
-    console.log('- MapManager sélectionné:', !!mapManager);
-    
-    if (!mapManager) {
-      console.error('❌ MapManager non disponible');
-      window.ToastManager.show('Erreur: Gestionnaire de carte non disponible', 'error');
-      return;
-    }
-    
-    if (!mapManager.map) {
-      console.error('❌ Carte non initialisée');
-      window.ToastManager.show('Erreur: Carte non initialisée', 'error');
-      return;
-    }
-    
-    // Basculer vers la vue carte si on n'y est pas
-    if (this.app.currentView !== 'map') {
-      console.log('- Basculement vers la vue carte...');
-      this.app.switchView('map');
-    }
-
-    // Fermer le panneau de géolocalisation
-    this.hidePanel();
-
-    // Attendre que la vue se charge complètement
-    setTimeout(() => {
-      try {
-        // Si on a la position utilisateur ET la méthode showRouteToDestination
-        if (this.userPosition && mapManager.showRouteToDestination) {
-          console.log('🎯 Affichage du trajet complet avec position utilisateur');
-          mapManager.showRouteToDestination(
-            this.userPosition.latitude, 
-            this.userPosition.longitude, 
-            lat, 
-            lng, 
-            name
-          );
-          window.ToastManager.show(`🎬 Trajet vers ${name} affiché`, 'success');
-        } else {
-          // MÊME sans position utilisateur, afficher la destination sur la carte interne
-          console.log('🎯 Affichage simple de la destination');
-          
-          // Centrer et zoomer sur la destination
-          mapManager.map.setView([lat, lng], 16);
-          
-          // Supprimer l'ancien marqueur de destination s'il existe
-          if (mapManager.destinationMarker) {
-            mapManager.map.removeLayer(mapManager.destinationMarker);
-          }
-          
-          // Créer un marqueur spécial pour la destination
-          const destIcon = L.divIcon({
-            className: 'cinema-marker cinema-marker-best-destination',
-            html: `
-              <div class="marker-cinema-inner" style="background: linear-gradient(45deg, #d4af37, #b8941f); border: 3px solid white; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.6);">
-                <i class="fas fa-star" style="color: #000; font-size: 18px;"></i>
-              </div>
-            `,
-            iconSize: [45, 45],
-            iconAnchor: [22, 22]
-          });
-          
-          mapManager.destinationMarker = L.marker([lat, lng], { icon: destIcon })
-            .addTo(mapManager.map)
-            .bindPopup(`
-              <div class="popup-content cinema-popup">
-                <h4 style="color: #d4af37; margin: 0;"><i class="fas fa-star"></i> ${name}</h4>
-                <p style="margin: 5px 0 0 0; font-size: 12px;"><strong>🎯 Destination sélectionnée</strong></p>
-              </div>
-            `)
-            .openPopup();
-            
-          // Afficher la bannière
-          const banner = document.getElementById('best-destination-banner');
-          if (banner) {
-            banner.textContent = `🎬 Destination: ${name}`;
-            banner.classList.add('show');
-            
-            // Masquer après 5 secondes
-            setTimeout(() => {
-              banner.classList.remove('show');
-            }, 5000);
-          }
-          
-          window.ToastManager.show(`🎯 ${name} affiché sur la carte`, 'success');
-        }
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'affichage:', error);
-        window.ToastManager.show('Erreur lors de l\'affichage du trajet', 'error');
+    // Afficher l'itinéraire sur la carte interne
+    if (window.mapManager && this.userPosition) {
+      // Basculer vers la vue carte si on n'y est pas
+      if (this.app.currentView !== 'map') {
+        this.app.switchView('map');
       }
-    }, 300);
+
+      // Fermer le panneau de géolocalisation
+      this.hidePanel();
+
+      // Créer l'itinéraire sur la carte
+      window.mapManager.showRouteToDestination(
+        this.userPosition.latitude, 
+        this.userPosition.longitude, 
+        lat, 
+        lng, 
+        name
+      );
+
+      // Notification de succès
+      window.ToastManager.show(`Itinéraire vers ${name} affiché sur la carte`, 'success');
+    } else {
+      // Fallback vers Google Maps si pas de position utilisateur
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      
+      let url;
+      if (isMobile) {
+        if (isIOS) {
+          url = `maps://maps.google.com/maps?daddr=${lat},${lng}&amp;ll=`;
+        } else {
+          url = `geo:${lat},${lng}?q=${lat},${lng}(${encodeURIComponent(name)})`;
+        }
+      } else {
+        url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${encodeURIComponent(name)}`;
+      }
+      
+      window.open(url, '_blank');
+      window.ToastManager.show(`Ouverture de l'itinéraire vers ${name}`, 'info');
+    }
   }
 
   showDetails(cinemaId) {
@@ -664,9 +585,8 @@ class GeolocationManager {
         };
 
         // Mettre à jour la carte
-        const mapManager = this.app.mapManager || window.mapManager;
-        if (mapManager) {
-          mapManager.updateUserPosition(this.userPosition.latitude, this.userPosition.longitude);
+        if (window.mapManager) {
+          window.mapManager.updateUserPosition(this.userPosition.latitude, this.userPosition.longitude);
         }
 
         // Relancer la recherche si nécessaire
