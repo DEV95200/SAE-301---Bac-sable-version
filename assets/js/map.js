@@ -407,8 +407,429 @@ class MapManager {
                     transform: translateY(-5px);
                 }
             }
+
+            /* Styles pour les marqueurs de proximité */
+            .custom-proximity-marker {
+                background: transparent !important;
+                border: none !important;
+            }
+
+            .proximity-marker {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 12px;
+                font-weight: bold;
+                border: 3px solid #d4af37;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                position: relative;
+                flex-direction: column;
+                padding: 2px;
+            }
+
+            .proximity-marker.open {
+                background: #10b981;
+                border-color: #10b981;
+            }
+
+            .proximity-marker.closed {
+                background: #ef4444;
+                border-color: #ef4444;
+            }
+
+            .proximity-marker .rank {
+                font-size: 10px;
+                font-weight: 900;
+                line-height: 1;
+                margin-bottom: 1px;
+            }
+
+            .proximity-marker i {
+                font-size: 8px;
+            }
+
+            /* Styles pour les popups de proximité */
+            .proximity-popup {
+                min-width: 250px;
+                font-family: 'Inter', sans-serif;
+            }
+
+            .proximity-popup .popup-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #2a2a2a;
+            }
+
+            .proximity-popup .rank-badge {
+                background: #d4af37;
+                color: #000;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: 900;
+                flex-shrink: 0;
+            }
+
+            .proximity-popup h4 {
+                flex: 1;
+                margin: 0;
+                font-size: 14px;
+                font-weight: 600;
+                color: #fff;
+            }
+
+            .proximity-popup .status-badge {
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 10px;
+                font-weight: 600;
+            }
+
+            .proximity-popup .status-badge.open {
+                background: rgba(16, 185, 129, 0.2);
+                color: #10b981;
+            }
+
+            .proximity-popup .status-badge.closed {
+                background: rgba(239, 68, 68, 0.2);
+                color: #ef4444;
+            }
+
+            .proximity-popup .distance-info {
+                margin-bottom: 12px;
+            }
+
+            .proximity-popup .distance-main {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #d4af37;
+                margin-bottom: 4px;
+            }
+
+            .proximity-popup .time-info {
+                display: flex;
+                gap: 12px;
+                font-size: 12px;
+                color: #9ca3af;
+            }
+
+            .proximity-popup .cinema-details p {
+                margin: 4px 0;
+                font-size: 12px;
+                color: #9ca3af;
+            }
+
+            .proximity-popup .details-row {
+                display: flex;
+                gap: 12px;
+                font-size: 11px;
+                color: #9ca3af;
+                margin-top: 6px;
+            }
+
+            .proximity-popup .popup-actions {
+                display: flex;
+                gap: 8px;
+                margin-top: 12px;
+                padding-top: 8px;
+                border-top: 1px solid #2a2a2a;
+            }
+
+            .proximity-popup .nav-btn {
+                flex: 1;
+                background: #d4af37;
+                color: #000;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+
+            .proximity-popup .nav-btn:hover {
+                background: #b8941f;
+            }
+
+            .proximity-popup .details-btn {
+                background: transparent;
+                color: #d4af37;
+                border: 1px solid #d4af37;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .proximity-popup .details-btn:hover {
+                background: rgba(212, 175, 55, 0.1);
+            }
         `;
         document.head.appendChild(style);
+    }
+
+    // === MÉTHODES GÉOLOCALISATION ESSENTIELLES ===
+
+    showNearestCinemas(nearestCinemas, userPosition, radius) {
+        console.log(`🎯 Affichage de ${nearestCinemas.length} cinémas les plus proches`);
+        
+        // Supprimer les anciens éléments de recherche de proximité
+        this.clearProximityDisplay();
+
+        // Créer un groupe pour les marqueurs des cinémas les plus proches
+        this.nearestMarkersGroup = L.layerGroup().addTo(this.map);
+
+        // Ajouter le cercle de rayon
+        this.radiusCircle = L.circle([userPosition.latitude, userPosition.longitude], {
+            radius: radius * 1000, // Convertir en mètres
+            fillColor: '#d4af37',
+            color: '#d4af37',
+            weight: 2,
+            opacity: 0.6,
+            fillOpacity: 0.1
+        }).addTo(this.map);
+
+        // Ajouter les marqueurs pour les cinémas les plus proches
+        nearestCinemas.forEach((cinema, index) => {
+            const rank = index + 1;
+            const isOpen = this.isCinemaOpen(cinema);
+            
+            const customIcon = L.divIcon({
+                html: `
+                    <div class="proximity-marker ${isOpen ? 'open' : 'closed'}">
+                        <span class="rank">${rank}</span>
+                        <i class="fas fa-film"></i>
+                    </div>
+                `,
+                className: 'custom-proximity-marker',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+
+            const marker = L.marker([cinema.latitude, cinema.longitude], { icon: customIcon })
+                .bindPopup(this.createProximityPopup(cinema, rank))
+                .addTo(this.nearestMarkersGroup);
+
+            // Ajouter une ligne entre l'utilisateur et le cinéma
+            const line = L.polyline([
+                [userPosition.latitude, userPosition.longitude],
+                [cinema.latitude, cinema.longitude]
+            ], {
+                color: '#d4af37',
+                weight: 2,
+                opacity: 0.5,
+                dashArray: '5, 10'
+            }).addTo(this.nearestMarkersGroup);
+        });
+
+        // Ajuster la vue pour inclure tous les points
+        const group = new L.featureGroup([this.userMarker, this.radiusCircle, this.nearestMarkersGroup]);
+        this.map.fitBounds(group.getBounds().pad(0.1));
+    }
+
+    createProximityPopup(cinema, rank) {
+        const isOpen = this.isCinemaOpen(cinema);
+        const walkingTime = Math.ceil(cinema.distance / 5 * 60); // 5km/h
+        const drivingTime = Math.ceil(cinema.distance / 30 * 60); // 30km/h
+
+        return `
+            <div class="proximity-popup">
+                <div class="popup-header">
+                    <div class="rank-badge">#${rank}</div>
+                    <h4>${cinema.nom}</h4>
+                    <div class="status-badge ${isOpen ? 'open' : 'closed'}">
+                        ${isOpen ? 'Ouvert' : 'Fermé'}
+                    </div>
+                </div>
+                
+                <div class="popup-content">
+                    <div class="distance-info">
+                        <div class="distance-main">
+                            <i class="fas fa-route"></i>
+                            <span>${cinema.distance.toFixed(1)} km</span>
+                        </div>
+                        <div class="time-info">
+                            <span><i class="fas fa-walking"></i> ${walkingTime} min</span>
+                            <span><i class="fas fa-car"></i> ${drivingTime} min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cinema-details">
+                        <p><i class="fas fa-map-marker-alt"></i> ${cinema.adresse}</p>
+                        <div class="details-row">
+                            <span><i class="fas fa-tv"></i> ${cinema.ecrans || cinema.salles || 3} écran${(cinema.ecrans || cinema.salles || 3) > 1 ? 's' : ''}</span>
+                            ${cinema.prix_moyen ? `<span><i class="fas fa-euro-sign"></i> ${cinema.prix_moyen.toFixed(2)}€</span>` : ''}
+                            ${cinema.note ? `<span><i class="fas fa-star"></i> ${cinema.note}/5</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="popup-actions">
+                        <button onclick="window.geolocationManager.navigateTo(${cinema.latitude}, ${cinema.longitude}, '${cinema.nom}')" class="nav-btn">
+                            <i class="fas fa-directions"></i> Itinéraire
+                        </button>
+                        <button onclick="window.geolocationManager.showDetails(${cinema.id})" class="details-btn">
+                            <i class="fas fa-info-circle"></i> Détails
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    clearProximityDisplay() {
+        // Supprimer le cercle de rayon
+        if (this.radiusCircle) {
+            this.map.removeLayer(this.radiusCircle);
+            this.radiusCircle = null;
+        }
+
+        // Supprimer le groupe de marqueurs de proximité
+        if (this.nearestMarkersGroup) {
+            this.map.removeLayer(this.nearestMarkersGroup);
+            this.nearestMarkersGroup = null;
+        }
+    }
+
+    isCinemaOpen(cinema) {
+        if (!cinema.horaires) return true;
+
+        const now = new Date();
+        const currentDay = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'][now.getDay()];
+        const currentTime = now.getHours() * 60 + now.getMinutes();
+
+        const todayHours = cinema.horaires[currentDay];
+        if (!todayHours || todayHours === 'Fermé') return false;
+
+        const [start, end] = todayHours.split('-');
+        if (!start || !end) return true;
+
+        const [startH, startM] = start.split(':').map(n => parseInt(n));
+        const [endH, endM] = end.split(':').map(n => parseInt(n));
+
+        const startTime = startH * 60 + startM;
+        const endTime = endH * 60 + endM;
+
+        return currentTime >= startTime && currentTime <= endTime;
+    }
+
+    showRouteToDestination(startLat, startLng, destLat, destLng, destName) {
+        console.log(`🛣️ Affichage de l'itinéraire vers ${destName}`);
+        
+        // Nettoyer les affichages précédents
+        this.clearProximityDisplay();
+        
+        // Supprimer l'ancien groupe de routage s'il existe
+        if (this.routeGroup) {
+            this.map.removeLayer(this.routeGroup);
+        }
+        
+        this.routeGroup = L.layerGroup();
+        
+        // Marqueur de départ (position utilisateur)
+        const startIcon = L.divIcon({
+            className: 'user-location-marker',
+            html: '<div class="marker-inner"><i class="fas fa-user"></i></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        
+        const startMarker = L.marker([startLat, startLng], { icon: startIcon })
+            .bindPopup('<div class="popup-content"><strong>Votre position</strong></div>');
+        
+        this.routeGroup.addLayer(startMarker);
+        
+        // Marqueur de destination
+        const destIcon = L.divIcon({
+            className: 'cinema-marker cinema-marker-highlighted',
+            html: '<div class="marker-inner"><i class="fas fa-film"></i></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+        
+        const destMarker = L.marker([destLat, destLng], { icon: destIcon })
+            .bindPopup(`<div class="popup-content"><strong>${destName}</strong></div>`);
+        
+        this.routeGroup.addLayer(destMarker);
+        
+        // Ligne droite entre les deux points (approximation simple)
+        const routeLine = L.polyline([[startLat, startLng], [destLat, destLng]], {
+            color: '#d4af37',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '10, 5'
+        });
+        
+        this.routeGroup.addLayer(routeLine);
+        
+        // Ajouter le groupe à la carte
+        this.map.addLayer(this.routeGroup);
+        
+        // Ajuster la vue pour inclure les deux points
+        const bounds = L.latLngBounds([[startLat, startLng], [destLat, destLng]]);
+        this.map.fitBounds(bounds, { padding: [50, 50] });
+        
+        // Afficher la bannière "meilleure destination"
+        const banner = document.getElementById('best-destination-banner');
+        if (banner) {
+            banner.classList.add('visible');
+            setTimeout(() => {
+                banner.classList.remove('visible');
+            }, 5000);
+        }
+        
+        // Ouvrir les popups
+        setTimeout(() => {
+            startMarker.openPopup();
+            setTimeout(() => {
+                destMarker.openPopup();
+            }, 1000);
+        }, 500);
+    }
+
+    showAllCinemas() {
+        console.log('🗺️ Retour à la vue normale');
+        
+        this.clearProximityDisplay();
+        
+        if (this.userMarker) {
+            this.map.removeLayer(this.userMarker);
+            this.userMarker = null;
+        }
+        
+        // Supprimer le groupe de routage
+        if (this.routeGroup) {
+            this.map.removeLayer(this.routeGroup);
+            this.routeGroup = null;
+        }
+
+        // Masquer la bannière
+        const banner = document.getElementById('best-destination-banner');
+        if (banner) {
+            banner.classList.remove('visible');
+        }
+
+        // Réafficher tous les marqueurs
+        this.updateMarkers(this.app.filteredCinemas);
+        
+        // Revenir à la vue d'ensemble de l'Île-de-France
+        this.map.setView([48.8566, 2.3522], 10);
     }
 }
 
