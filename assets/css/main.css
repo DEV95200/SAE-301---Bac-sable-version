@@ -51,14 +51,26 @@
 }
 
 /* Styles pour la carte dans le cadre cinéma */
+.framed-map-container {
+  position: relative;
+  height: 70vh;
+  min-height: 500px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
 .framed-map-container .map-container {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
   border-radius: 15px;
   position: relative;
+  z-index: 1;
 }
 
 .framed-map-container .leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
   border-radius: 15px;
   font-family: 'Inter', sans-serif;
 }
@@ -73,6 +85,14 @@
   border: 2px solid #d4af37;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Fix pour que la carte ne soit pas masquée */
+#map {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 /* Navigation Buttons */

@@ -382,6 +382,43 @@
   width: 100%;
 }
 
+/* === FIX URGENT CARTE === */
+.cinema-map-frame {
+  position: relative;
+  background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+  border: 3px solid #d4af37;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 
+    0 0 30px rgba(212, 175, 55, 0.3),
+    inset 0 2px 10px rgba(0, 0, 0, 0.5);
+  overflow: visible !important;
+  height: calc(100vh - 40px);
+}
+
+.framed-map-container {
+  position: relative !important;
+  height: calc(100% - 40px) !important;
+  min-height: 500px !important;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #000;
+}
+
+#map {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
 .map-controls {
   position: absolute;
   top: 1rem;
