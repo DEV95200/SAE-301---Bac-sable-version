@@ -473,10 +473,6 @@ class GeolocationManager {
     
     return stars.join('');
   }
-    `;
-
-    return card;
-  }
 
   navigateTo(lat, lng, name) {
     // Afficher l'itinéraire sur la carte interne
