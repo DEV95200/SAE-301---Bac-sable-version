@@ -142,7 +142,7 @@ class GeolocationManager {
     radiusSlider.addEventListener('input', (e) => {
       this.searchRadius = parseInt(e.target.value);
       document.getElementById('radius-value').textContent = `${this.searchRadius} km`;
-      this.updateSearch();
+      // updateSearch supprimé - pas de recherche automatique
     });
 
     // Slider de prix
@@ -151,7 +151,7 @@ class GeolocationManager {
       const price = parseFloat(e.target.value);
       document.getElementById('price-value').textContent = `${price}€`;
       this.preferences.maxPrice = price;
-      this.updateSearch();
+      // updateSearch supprimé - pas de recherche automatique
     });
 
     // Services
@@ -159,7 +159,7 @@ class GeolocationManager {
       btn.addEventListener('click', () => {
         btn.classList.toggle('active');
         this.updatePreferences();
-        this.updateSearch();
+        // updateSearch supprimé - pas de recherche automatique
       });
     });
 
@@ -167,7 +167,7 @@ class GeolocationManager {
     document.querySelectorAll('.advanced-options input[type="checkbox"]').forEach(checkbox => {
       checkbox.addEventListener('change', () => {
         this.updatePreferences();
-        this.updateSearch();
+        // updateSearch supprimé - pas de recherche automatique
       });
     });
 
@@ -624,10 +624,9 @@ class GeolocationManager {
           window.mapManager.updateUserPosition(this.userPosition.latitude, this.userPosition.longitude);
         }
 
-        // Relancer la recherche si nécessaire
-        if (this.nearestCinemas.length > 0) {
-          this.updateSearch();
-        }
+        // Ne pas relancer automatiquement la recherche lors du suivi
+        // L'utilisateur doit cliquer sur "Trouver les cinémas" pour une nouvelle recherche
+        console.log('Position mise à jour durant le suivi');
       },
       (error) => {
         console.error('Erreur de suivi:', error);
@@ -652,9 +651,9 @@ class GeolocationManager {
   }
 
   updateSearch() {
-    if (this.userPosition && this.nearestCinemas.length > 0) {
-      this.findNearestCinemas();
-    }
+    // Ne pas relancer automatiquement la recherche
+    // La recherche doit être déclenchée manuellement par l'utilisateur
+    console.log('Paramètres de recherche mis à jour - pas de relance automatique');
   }
 
   updateStatus(message, type = 'info') {
