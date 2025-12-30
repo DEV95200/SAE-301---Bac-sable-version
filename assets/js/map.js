@@ -378,63 +378,12 @@ class MapManager {
         `;
         document.head.appendChild(style);
     }
-
-    // === MÉTHODES DE GÉOLOCALISATION ===
-    
-    centerOnPosition(lat, lng) {
-        if (this.map) {
-            console.log('🎯 Centrage carte sur position:', lat, lng);
-            this.map.setView([lat, lng], 13);
-        }
-    }
-
-    addUserMarker(lat, lng) {
-        console.log('📍 Ajout marqueur utilisateur:', lat, lng);
-        
-        // Supprimer l'ancien marqueur utilisateur s'il existe
-        if (this.userMarker) {
-            this.map.removeLayer(this.userMarker);
-        }
-
-        // Créer une icône personnalisée pour l'utilisateur
-        const userIcon = L.divIcon({
-            html: '<div class="user-location-marker"><i class="fas fa-user"></i></div>',
-            className: 'user-location-marker',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
-
-        // Ajouter le marqueur à la carte
-        this.userMarker = L.marker([lat, lng], { icon: userIcon })
-            .addTo(this.map)
-            .bindPopup(`
-                <div class="popup-content">
-                    <h4><i class="fas fa-user text-blue-400"></i> Votre position</h4>
-                    <p class="text-sm text-gray-400">Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}</p>
-                </div>
-            `);
-    }
-
-    updateUserPosition(lat, lng) {
-        console.log('🔄 Mise à jour position utilisateur:', lat, lng);
-        
-        if (this.userMarker) {
-            // Mettre à jour la position du marqueur existant
-            this.userMarker.setLatLng([lat, lng]);
-        } else {
-            // Créer un nouveau marqueur si il n'existe pas
-            this.addUserMarker(lat, lng);
-        }
-    }
 }
 
 // Extend the CinemaApp with map functionality
 Object.assign(CinemaApp.prototype, {
     initializeMap() {
         this.mapManager = new MapManager(this);
-        // Exposer mapManager globalement pour accès depuis d'autres modules
-        window.mapManager = this.mapManager;
-        console.log('✅ MapManager exposé globalement:', !!window.mapManager);
         this.mapManager.addCustomMarkerStyles();
         this.mapManager.initialize();
         this.updateMapMarkers();
@@ -449,6 +398,48 @@ Object.assign(CinemaApp.prototype, {
     showUserLocationOnMap() {
         if (this.mapManager && this.userLocation) {
             this.mapManager.showUserLocation(this.userLocation);
+        }
+    },
+
+    // === NOUVELLES MÉTHODES DE GÉOLOCALISATION ===
+
+    centerOnPosition(lat, lng) {
+        if (this.map) {
+            this.map.setView([lat, lng], 13);
+        }
+    },
+
+    addUserMarker(lat, lng) {
+        // Supprimer l'ancien marqueur utilisateur s'il existe
+        if (this.userMarker) {
+            this.map.removeLayer(this.userMarker);
+        }
+
+        // Créer une icône personnalisée pour l'utilisateur
+        const userIcon = L.divIcon({
+            html: '<div class="user-location-marker"><i class="fas fa-user"></i></div>',
+            className: 'custom-user-marker',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // Ajouter le nouveau marqueur
+        this.userMarker = L.marker([lat, lng], { icon: userIcon })
+            .addTo(this.map)
+            .bindPopup(`
+                <div class="user-popup">
+                    <h4><i class="fas fa-user"></i> Votre position</h4>
+                    <p>Latitude: ${lat.toFixed(6)}</p>
+                    <p>Longitude: ${lng.toFixed(6)}</p>
+                </div>
+            `);
+    },
+
+    updateUserPosition(lat, lng) {
+        if (this.userMarker) {
+            this.userMarker.setLatLng([lat, lng]);
+        } else {
+            this.addUserMarker(lat, lng);
         }
     },
 
