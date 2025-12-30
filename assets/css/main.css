@@ -50,6 +50,31 @@
   background: #b8941f;
 }
 
+/* Styles pour la carte dans le cadre cinéma */
+.framed-map-container .map-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  position: relative;
+}
+
+.framed-map-container .leaflet-container {
+  border-radius: 15px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* S'assurer que les contrôles Leaflet sont visibles */
+.cinema-map-frame .leaflet-control-container {
+  z-index: 1000;
+}
+
+.cinema-map-frame .leaflet-popup-content-wrapper {
+  background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+  border: 2px solid #d4af37;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
 /* Navigation Buttons */
 .nav-btn {
   position: relative;

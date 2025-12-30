@@ -583,13 +583,157 @@ Object.assign(CinemaApp.prototype, {
         return currentTime >= startTime && currentTime <= endTime;
     },
 
+    // Méthode pour afficher la meilleure destination avec trajet stylisé
+    showRouteToDestination(startLat, startLng, destLat, destLng, destName) {
+        console.log('Affichage du meilleur trajet vers:', destName);
+        
+        // Nettoyer les affichages précédents
+        this.clearProximityDisplay();
+        
+        // Supprimer l'ancien groupe de routage s'il existe
+        if (this.routeGroup) {
+            this.map.removeLayer(this.routeGroup);
+        }
+        
+        this.routeGroup = L.layerGroup();
+        
+        // Afficher la bannière "La meilleure destination"
+        const banner = document.getElementById('best-destination-banner');
+        if (banner) {
+            banner.textContent = `🎬 La meilleure destination: ${destName}`;
+            banner.classList.add('show');
+            
+            // Masquer après 5 secondes
+            setTimeout(() => {
+                banner.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Marqueur de départ (position utilisateur) - Style cinéma
+        const startIcon = L.divIcon({
+            className: 'user-location-marker-cinema',
+            html: `
+                <div class="marker-cinema-inner" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8); border: 3px solid #d4af37;">
+                    <i class="fas fa-user" style="color: white; font-size: 14px;"></i>
+                </div>
+            `,
+            iconSize: [35, 35],
+            iconAnchor: [17, 17]
+        });
+        
+        const startMarker = L.marker([startLat, startLng], { icon: startIcon })
+            .bindPopup(`
+                <div class="popup-content cinema-popup">
+                    <h4 style="color: #d4af37; margin: 0;"><i class="fas fa-user"></i> Votre position</h4>
+                    <p style="margin: 5px 0 0 0; font-size: 12px;">Point de départ</p>
+                </div>
+            `);
+        
+        this.routeGroup.addLayer(startMarker);
+        
+        // Marqueur de destination - Style cinéma premium
+        const destIcon = L.divIcon({
+            className: 'cinema-marker cinema-marker-best-destination',
+            html: `
+                <div class="marker-cinema-inner" style="background: linear-gradient(45deg, #d4af37, #b8941f); border: 3px solid white; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.6);">
+                    <i class="fas fa-star" style="color: #000; font-size: 18px;"></i>
+                </div>
+            `,
+            iconSize: [45, 45],
+            iconAnchor: [22, 22]
+        });
+        
+        const destMarker = L.marker([destLat, destLng], { icon: destIcon })
+            .bindPopup(`
+                <div class="popup-content cinema-popup">
+                    <h4 style="color: #d4af37; margin: 0;"><i class="fas fa-trophy"></i> ${destName}</h4>
+                    <p style="margin: 5px 0 0 0; font-size: 12px;"><strong>🎯 Meilleure destination</strong></p>
+                </div>
+            `);
+        
+        this.routeGroup.addLayer(destMarker);
+        
+        // Ligne de trajet stylisée avec couleurs cinéma
+        const routeLine = L.polyline([[startLat, startLng], [destLat, destLng]], {
+            color: '#d4af37',
+            weight: 6,
+            opacity: 0.9,
+            dashArray: '15, 10',
+            className: 'best-route-line'
+        });
+        
+        // Ajouter une ligne d'ombre pour l'effet 3D
+        const shadowLine = L.polyline([[startLat, startLng], [destLat, destLng]], {
+            color: '#000000',
+            weight: 8,
+            opacity: 0.3,
+            dashArray: '15, 10',
+            offset: 2
+        });
+        
+        this.routeGroup.addLayer(shadowLine);
+        this.routeGroup.addLayer(routeLine);
+        
+        // Points intermédiaires pour un effet plus dynamique
+        const midLat = (startLat + destLat) / 2;
+        const midLng = (startLng + destLng) / 2;
+        
+        const waypoint = L.circleMarker([midLat, midLng], {
+            radius: 8,
+            fillColor: '#d4af37',
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+        }).bindPopup(`
+            <div class="popup-content cinema-popup">
+                <p style="margin: 0; font-size: 12px; text-align: center;"><i class="fas fa-route"></i> Point de passage</p>
+            </div>
+        `);
+        
+        this.routeGroup.addLayer(waypoint);
+        
+        // Ajouter le groupe à la carte
+        this.map.addLayer(this.routeGroup);
+        
+        // Ajuster la vue pour inclure les deux points avec marge
+        const bounds = L.latLngBounds([[startLat, startLng], [destLat, destLng]]);
+        this.map.fitBounds(bounds, { 
+            padding: [80, 80],
+            maxZoom: 15
+        });
+        
+        // Animation des popups
+        setTimeout(() => {
+            startMarker.openPopup();
+            setTimeout(() => {
+                startMarker.closePopup();
+                destMarker.openPopup();
+            }, 2000);
+        }, 1000);
+        
+        console.log('Meilleur trajet affiché avec succès');
+    },
+
     // Méthode pour revenir à la vue normale
     showAllCinemas() {
         this.clearProximityDisplay();
         
+        // Masquer la bannière
+        const banner = document.getElementById('best-destination-banner');
+        if (banner) {
+            banner.classList.remove('show');
+        }
+        
         if (this.userMarker) {
             this.map.removeLayer(this.userMarker);
             this.userMarker = null;
+        }
+        
+        // Supprimer le groupe de routage
+        if (this.routeGroup) {
+            this.map.removeLayer(this.routeGroup);
+            this.routeGroup = null;
         }
 
         // Réafficher tous les marqueurs

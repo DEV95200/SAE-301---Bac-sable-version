@@ -273,6 +273,24 @@ class GeolocationManager {
         this.updateStatus(`${this.nearestCinemas.length} cinéma(s) trouvé(s)`, 'success');
         this.displayResults();
         
+        // Afficher automatiquement la meilleure destination (la plus proche)
+        if (this.nearestCinemas.length > 0) {
+          const bestCinema = this.nearestCinemas[0]; // Le premier est le plus proche
+          
+          // Afficher le trajet vers la meilleure destination
+          setTimeout(() => {
+            if (window.mapManager && window.mapManager.showRouteToDestination) {
+              window.mapManager.showRouteToDestination(
+                this.userPosition.latitude,
+                this.userPosition.longitude,
+                bestCinema.latitude,
+                bestCinema.longitude,
+                bestCinema.nom
+              );
+            }
+          }, 1000);
+        }
+        
         // Mettre à jour la carte
         if (window.mapManager) {
           window.mapManager.showNearestCinemas(this.nearestCinemas, this.userPosition, this.searchRadius);
@@ -484,7 +502,7 @@ class GeolocationManager {
       );
 
       // Notification de succès
-      window.ToastManager.show(`Itinéraire vers ${name} affiché sur la carte`, 'success');
+      window.ToastManager.show(`🎬 Meilleur trajet vers ${name} affiché`, 'success');
     } else {
       // Fallback vers Google Maps si pas de position utilisateur
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
