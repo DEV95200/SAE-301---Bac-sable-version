@@ -722,61 +722,71 @@ class CinemaApp {
         const isOpen = this.isCinemaCurrentlyOpen(cinema);
         
         card.innerHTML = `
-            <div class="cinema-card-header">
-                <div class="cinema-name-section">
-                    <h2 class="cinema-name">${cinema.nom}</h2>
-                    <div class="cinema-price">${cinema.prix_moyen ? cinema.prix_moyen.toFixed(2) : '9.00'}€</div>
+            <!-- En-tête avec nom et prix -->
+            <div class="cinema-header">
+                <h2 class="cinema-title">${cinema.nom}</h2>
+                <div class="cinema-price">${cinema.prix_moyen ? cinema.prix_moyen.toFixed(2) : '9.00'}€</div>
+            </div>
+            
+            <!-- Adresse -->
+            <div class="cinema-address">
+                <i class="fas fa-map-marker-alt"></i> ${cinema.adresse}
+            </div>
+            
+            <!-- Rating avec étoiles -->
+            <div class="cinema-rating">
+                <div class="stars">
+                    ${this.generateStarsHTML(cinema.note || 4.5)}
                 </div>
-                <div class="cinema-address">
-                    📍 ${cinema.adresse}
+                <span class="rating-info">${(cinema.note || 4.5).toFixed(1)}/5 (${cinema.avis_count || 234} avis)</span>
+            </div>
+            
+            <!-- Informations pratiques -->
+            <div class="cinema-details">
+                <div class="detail-item">
+                    <i class="fas fa-film"></i>
+                    <span>${cinema.salles || 3} Salles</span>
                 </div>
-                <div class="cinema-rating">
-                    ${this.generateStars(cinema.note)}
-                    <span class="rating-text">${cinema.note ? cinema.note.toFixed(1) : '4.5'}/5 (${cinema.avis_count || '234'} avis)</span>
+                <div class="detail-item ${cinema.accessibilite ? 'positive' : 'negative'}">
+                    <i class="fas fa-${cinema.accessibilite ? 'wheelchair' : 'times'}"></i>
+                    <span>${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <span>01:4...</span>
                 </div>
             </div>
             
-            <div class="cinema-info-grid">
-                <div class="info-item">
-                    <span class="info-icon">🎬</span>
-                    <span class="info-text">${cinema.salles || 3} Salles</span>
-                </div>
-                <div class="info-item ${cinema.accessibilite ? 'accessible' : 'not-accessible'}">
-                    <span class="info-icon">${cinema.accessibilite ? '♿' : '🚫'}</span>
-                    <span class="info-text">${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-icon">⏰</span>
-                    <span class="info-text">${cinema.horaires_ouverture || '01:4...'}</span>
-                </div>
-            </div>
-            
+            <!-- Genres de films -->
             <div class="genres-section">
-                <h4 class="section-title">Genres de films:</h4>
-                <div class="genres-list">
-                    ${cinema.types_films ? cinema.types_films.slice(0, 4).map(genre => 
+                <h4>Genres de films:</h4>
+                <div class="tags-container">
+                    ${(cinema.types_films || ['Art et Essai', 'Drame', 'Auteur', 'International']).slice(0, 4).map(genre => 
                         `<span class="genre-tag">${genre}</span>`
-                    ).join('') : '<span class="genre-tag">Action</span><span class="genre-tag">Drame</span>'}
-                    ${cinema.types_films && cinema.types_films.length > 4 ? '<span class="more-genres">+' + (cinema.types_films.length - 4) + ' autres</span>' : ''}
+                    ).join('')}
+                    ${cinema.types_films && cinema.types_films.length > 4 ? `<span class="more-tag">+${cinema.types_films.length - 4} autres</span>` : ''}
                 </div>
             </div>
             
+            <!-- Services -->
             <div class="services-section">
-                <h4 class="section-title">Services:</h4>
-                <div class="services-list">
-                    ${cinema.services ? cinema.services.slice(0, 3).map(service => 
+                <h4>Services:</h4>
+                <div class="tags-container">
+                    ${(cinema.services || ['API et Essai', 'VR', 'Projection', '+1']).slice(0, 3).map(service => 
                         `<span class="service-tag">${service}</span>`
-                    ).join('') : '<span class="service-tag">Plus grande salle d\'Europe</span><span class="service-tag">Visite guidée</span>'}
-                    ${cinema.services && cinema.services.length > 3 ? '<span class="more-services">+' + (cinema.services.length - 3) + '</span>' : ''}
+                    ).join('')}
+                    ${cinema.services && cinema.services.length > 3 ? `<span class="service-count">+${cinema.services.length - 3}</span>` : ''}
                 </div>
             </div>
             
-            <div class="hours-section">
-                <span class="hours-icon ${isOpen ? 'open' : 'closed'}">●</span>
+            <!-- Horaires d'aujourd'hui -->
+            <div class="today-hours">
+                <span class="status-indicator ${isOpen ? 'open' : 'closed'}">●</span>
                 <span class="hours-text">Aujourd'hui: ${todayHours}</span>
             </div>
             
-            <div class="cinema-actions">
+            <!-- Boutons d'action -->
+            <div class="action-buttons">
                 <button class="btn-details" onclick="cinemaApp.showCinemaDetails(${cinema.id})">
                     <i class="fas fa-info-circle"></i> Détails
                 </button>
@@ -798,7 +808,7 @@ class CinemaApp {
         return card;
     }
     
-    generateStars(rating) {
+    generateStarsHTML(rating) {
         const stars = [];
         const fullStars = Math.floor(rating || 4.5);
         const hasHalfStar = (rating || 4.5) % 1 >= 0.5;

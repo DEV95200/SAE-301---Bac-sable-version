@@ -453,15 +453,16 @@
 
 /* Styles pour les cartes de cinémas - Format exact de l'image */
 .cinema-card {
-  background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
-  border: 1px solid #2a2a2a;
+  background: linear-gradient(135deg, #1f1f1f 0%, #2a2a2a 100%);
+  border: 1px solid #333333;
   border-radius: 12px;
   padding: 20px;
+  margin-bottom: 20px;
   transition: all 0.3s ease;
   opacity: 0;
   transform: translateY(20px);
   position: relative;
-  overflow: hidden;
+  color: #ffffff;
 }
 
 .cinema-card:hover {
@@ -470,39 +471,65 @@
   box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
 }
 
-.cinema-card-header {
-  margin-bottom: 15px;
-}
-
-.cinema-name-section {
+/* En-tête avec nom et prix */
+.cinema-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.cinema-name {
-  font-size: 18px;
+.cinema-title {
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
   margin: 0;
   flex: 1;
-  margin-right: 10px;
+  margin-right: 15px;
+  line-height: 1.2;
 }
 
 .cinema-price {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: #d4af37;
   white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
+/* Badge de distance pour les cartes de proximité */
+.proximity-info {
+  margin-bottom: 8px;
+}
+
+.distance-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 6px;
+}
+
+/* Adresse */
 .cinema-address {
   color: #9ca3af;
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
+.cinema-address i {
+  color: #d4af37;
+  font-size: 12px;
+}
+
+/* Rating avec étoiles */
 .cinema-rating {
   display: flex;
   align-items: center;
@@ -510,176 +537,226 @@
   margin-bottom: 15px;
 }
 
+.cinema-rating .stars {
+  display: flex;
+  gap: 2px;
+}
+
 .cinema-rating .fas.fa-star,
 .cinema-rating .fas.fa-star-half-alt {
   color: #d4af37;
   font-size: 14px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
 }
 
 .cinema-rating .far.fa-star {
-  color: #444;
+  color: #555555;
   font-size: 14px;
 }
 
-.rating-text {
+.rating-info {
   color: #9ca3af;
   font-size: 12px;
+  font-weight: 500;
 }
 
-.cinema-info-grid {
+/* Informations pratiques */
+.cinema-details {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 15px;
-  padding: 10px 0;
-  border-bottom: 1px solid #2a2a2a;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #333333;
 }
 
-.info-item {
+.detail-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 5px;
+  padding: 6px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
 }
 
-.info-icon {
+.detail-item i {
   font-size: 16px;
   margin-bottom: 4px;
-}
-
-.info-text {
-  font-size: 12px;
   color: #9ca3af;
 }
 
-.info-item.accessible .info-icon {
+.detail-item span {
+  font-size: 12px;
+  color: #d1d5db;
+  font-weight: 500;
+}
+
+.detail-item.positive i {
   color: #10b981;
 }
 
-.info-item.not-accessible .info-icon {
+.detail-item.negative i {
   color: #ef4444;
 }
 
+/* Sections genres et services */
 .genres-section,
 .services-section {
   margin-bottom: 15px;
 }
 
-.section-title {
+.genres-section h4,
+.services-section h4 {
   color: #d4af37;
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 8px;
+  text-transform: none;
 }
 
-.genres-list,
-.services-list {
+.tags-container {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  align-items: center;
 }
 
+/* Tags pour genres */
 .genre-tag {
   background: rgba(212, 175, 55, 0.15);
   color: #d4af37;
   border: 1px solid rgba(212, 175, 55, 0.3);
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 4px 10px;
+  border-radius: 14px;
   font-size: 11px;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
+.genre-tag:hover {
+  background: rgba(212, 175, 55, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Tags pour services */
 .service-tag {
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.3);
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 4px 10px;
+  border-radius: 14px;
   font-size: 11px;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.more-genres,
-.more-services {
+.service-tag:hover {
+  background: rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Indicateurs "plus" */
+.more-tag,
+.service-count {
   color: #9ca3af;
   font-size: 11px;
+  font-weight: 500;
   padding: 4px 8px;
+  background: rgba(156, 163, 175, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(156, 163, 175, 0.2);
 }
 
-.hours-section {
+/* Horaires d'aujourd'hui */
+.today-hours {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 15px;
+  gap: 8px;
+  margin-bottom: 16px;
   padding: 8px 0;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #333333;
 }
 
-.hours-icon {
-  font-size: 12px;
+.status-indicator {
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.hours-icon.open {
+.status-indicator.open {
   color: #10b981;
+  text-shadow: 0 0 4px rgba(16, 185, 129, 0.3);
 }
 
-.hours-icon.closed {
+.status-indicator.closed {
   color: #ef4444;
+  text-shadow: 0 0 4px rgba(239, 68, 68, 0.3);
 }
 
 .hours-text {
-  color: #9ca3af;
+  color: #d1d5db;
   font-size: 13px;
   font-weight: 500;
 }
 
-.cinema-actions {
+/* Boutons d'action */
+.action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .btn-details {
   flex: 1;
-  background: #d4af37;
-  color: #000;
+  background: linear-gradient(135deg, #d4af37, #b8941f);
+  color: #000000;
   border: none;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.1);
 }
 
 .btn-details:hover {
-  background: #b8941f;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #b8941f, #9d7a1a);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
 }
 
 .btn-map {
   flex: 1;
   background: transparent;
   color: #d4af37;
-  border: 1px solid #d4af37;
+  border: 2px solid #d4af37;
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .btn-map:hover {
   background: rgba(212, 175, 55, 0.1);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
 }
 
 .btn-external {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #ffffff;
   border: none;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   text-decoration: none;
   display: flex;
@@ -687,11 +764,27 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-width: 44px;
 }
 
 .btn-external:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  color: #ffffff;
+}
+
+/* Cartes de proximité - variations pour le panneau de géolocalisation */
+.proximity-cinema-card {
+  margin-bottom: 16px;
+}
+
+.proximity-cinema-card .cinema-title {
+  font-size: 18px;
+}
+
+.proximity-cinema-card .cinema-price {
+  font-size: 24px;
 }
 
 /* Animation d'apparition */
@@ -703,6 +796,43 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cinema-details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .cinema-title {
+    font-size: 18px;
+  }
+  
+  .cinema-price {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cinema-card {
+    padding: 16px;
+  }
+  
+  .cinema-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .cinema-price {
+    align-self: flex-end;
   }
 }
 

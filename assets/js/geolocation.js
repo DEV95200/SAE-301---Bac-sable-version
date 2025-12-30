@@ -359,95 +359,120 @@ class GeolocationManager {
 
   createCinemaCard(cinema, rank) {
     const card = document.createElement('div');
-    card.className = 'proximity-card';
+    card.className = 'cinema-card proximity-cinema-card';
     
     const isOpen = this.isCinemaOpen(cinema);
-    const walkingTime = Math.ceil(cinema.distance / 5 * 60); // 5km/h vitesse de marche
-    const drivingTime = Math.ceil(cinema.distance / 30 * 60); // 30km/h vitesse en ville
-
+    const todayHours = '14:00-22:30'; // Default hours
+    
     card.innerHTML = `
-      <div class="card-header">
-        <div class="rank-badge">#${rank}</div>
-        <h4 class="cinema-name">${cinema.nom}</h4>
-        <div class="status-badge ${isOpen ? 'open' : 'closed'}">
-          ${isOpen ? 'Ouvert' : 'Fermé'}
+        <!-- En-tête avec nom et prix -->
+        <div class="cinema-header">
+            <h2 class="cinema-title">${cinema.nom}</h2>
+            <div class="cinema-price">${cinema.prix_moyen ? cinema.prix_moyen.toFixed(2) : '9.00'}€</div>
         </div>
-      </div>
-
-      <div class="card-content">
-        <div class="distance-info">
-          <div class="distance-main">
-            <i class="fas fa-route"></i>
-            <span class="distance">${window.GeoUtils.formatDistance(cinema.distance)}</span>
-          </div>
-          <div class="time-estimates">
-            <span class="walking-time">
-              <i class="fas fa-walking"></i>
-              ${walkingTime} min à pied
-            </span>
-            <span class="driving-time">
-              <i class="fas fa-car"></i>
-              ${drivingTime} min en voiture
-            </span>
-          </div>
-        </div>
-
-        <div class="cinema-info">
-          <div class="address">
-            <i class="fas fa-map-marker-alt"></i>
-            ${cinema.adresse}
-          </div>
-          
-          <div class="details">
-            <span class="screens">
-              <i class="fas fa-tv"></i>
-              ${cinema.ecrans} écran${cinema.ecrans > 1 ? 's' : ''}
-            </span>
-            
-            ${cinema.prix_moyen ? `
-              <span class="price">
-                <i class="fas fa-euro-sign"></i>
-                ${cinema.prix_moyen}€
-              </span>
-            ` : ''}
-            
-            ${cinema.note ? `
-              <span class="rating">
-                <i class="fas fa-star"></i>
-                ${cinema.note}/5
-              </span>
-            ` : ''}
-          </div>
-
-          ${cinema.services && cinema.services.length > 0 ? `
-            <div class="services">
-              ${cinema.services.slice(0, 3).map(service => 
-                `<span class="service-tag">${service}</span>`
-              ).join('')}
-              ${cinema.services.length > 3 ? `<span class="more-services">+${cinema.services.length - 3}</span>` : ''}
+        
+        <!-- Distance et adresse -->
+        <div class="proximity-info">
+            <div class="distance-badge">
+                <i class="fas fa-route"></i>
+                ${window.GeoUtils ? window.GeoUtils.formatDistance(cinema.distance) : cinema.distance.toFixed(1) + ' km'}
             </div>
-          ` : ''}
         </div>
-      </div>
-
-      <div class="card-actions">
-        <button class="action-btn primary" onclick="window.geolocationManager.navigateTo(${cinema.latitude}, ${cinema.longitude}, '${cinema.nom}')">
-          <i class="fas fa-directions"></i>
-          Itinéraire
-        </button>
         
-        <button class="action-btn secondary" onclick="window.geolocationManager.showDetails(${cinema.id})">
-          <i class="fas fa-info-circle"></i>
-          Détails
-        </button>
+        <!-- Adresse -->
+        <div class="cinema-address">
+            <i class="fas fa-map-marker-alt"></i> ${cinema.adresse}
+        </div>
         
-        ${cinema.telephone ? `
-          <button class="action-btn tertiary" onclick="window.geolocationManager.callCinema('${cinema.telephone}')">
-            <i class="fas fa-phone"></i>
-            Appeler
-          </button>
-        ` : ''}
-      </div>
+        <!-- Rating avec étoiles -->
+        <div class="cinema-rating">
+            <div class="stars">
+                ${this.generateStarsHTML(cinema.note || 4.5)}
+            </div>
+            <span class="rating-info">${(cinema.note || 4.5).toFixed(1)}/5 (${cinema.avis_count || 234} avis)</span>
+        </div>
+        
+        <!-- Informations pratiques -->
+        <div class="cinema-details">
+            <div class="detail-item">
+                <i class="fas fa-film"></i>
+                <span>${cinema.ecrans || cinema.salles || 3} Salles</span>
+            </div>
+            <div class="detail-item ${cinema.accessibilite ? 'positive' : 'negative'}">
+                <i class="fas fa-${cinema.accessibilite ? 'wheelchair' : 'times'}"></i>
+                <span>${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
+            </div>
+            <div class="detail-item">
+                <i class="fas fa-clock"></i>
+                <span>01:4...</span>
+            </div>
+        </div>
+        
+        <!-- Genres de films -->
+        <div class="genres-section">
+            <h4>Genres de films:</h4>
+            <div class="tags-container">
+                ${(cinema.types_films || ['Art et Essai', 'Drame', 'Auteur', 'International']).slice(0, 4).map(genre => 
+                    `<span class="genre-tag">${genre}</span>`
+                ).join('')}
+                ${cinema.types_films && cinema.types_films.length > 4 ? `<span class="more-tag">+${cinema.types_films.length - 4} autres</span>` : ''}
+            </div>
+        </div>
+        
+        <!-- Services -->
+        <div class="services-section">
+            <h4>Services:</h4>
+            <div class="tags-container">
+                ${(cinema.services || ['Plus grande salle d\'Europe', 'Visite guidée']).slice(0, 3).map(service => 
+                    `<span class="service-tag">${service}</span>`
+                ).join('')}
+                ${cinema.services && cinema.services.length > 3 ? `<span class="service-count">+${cinema.services.length - 3}</span>` : ''}
+            </div>
+        </div>
+        
+        <!-- Horaires d'aujourd'hui -->
+        <div class="today-hours">
+            <span class="status-indicator ${isOpen ? 'open' : 'closed'}">●</span>
+            <span class="hours-text">Aujourd'hui: ${todayHours}</span>
+        </div>
+        
+        <!-- Boutons d'action -->
+        <div class="action-buttons">
+            <button class="btn-details" onclick="window.geolocationManager.showDetails(${cinema.id})">
+                <i class="fas fa-info-circle"></i> Détails
+            </button>
+            <button class="btn-map" onclick="window.geolocationManager.navigateTo(${cinema.latitude}, ${cinema.longitude}, '${cinema.nom}')">
+                <i class="fas fa-map-marked-alt"></i> Carte
+            </button>
+            <a href="${cinema.site_web || '#'}" target="_blank" class="btn-external">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+    `;
+    
+    return card;
+  }
+  
+  generateStarsHTML(rating) {
+    const stars = [];
+    const fullStars = Math.floor(rating || 4.5);
+    const hasHalfStar = (rating || 4.5) % 1 >= 0.5;
+    
+    for (let i = 0; i < fullStars; i++) {
+        stars.push('<i class="fas fa-star"></i>');
+    }
+    
+    if (hasHalfStar) {
+        stars.push('<i class="fas fa-star-half-alt"></i>');
+    }
+    
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+        stars.push('<i class="far fa-star"></i>');
+    }
+    
+    return stars.join('');
+  }
     `;
 
     return card;

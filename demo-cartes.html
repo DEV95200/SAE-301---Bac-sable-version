@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cartes Cinéma - Style Identique</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-title {
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cards-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .demo-section {
+            margin-bottom: 40px;
+        }
+        .demo-section h3 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">🎬 Test Style Cartes Cinéma - Identique pour Liste & Géolocalisation</h1>
+        
+        <div class="demo-section">
+            <h3>📋 Carte Liste Principale</h3>
+            <div class="cards-demo" id="liste-demo"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>📍 Carte Panneau Géolocalisation</h3>
+            <div class="cards-demo" id="geo-demo"></div>
+        </div>
+    </div>
+
+    <script>
+        // Données de test
+        const testCinema = {
+            id: 1,
+            nom: "LE LOUXOR",
+            prix_moyen: 9.00,
+            adresse: "170 BD DE MAGENTA, 75010 Paris",
+            note: 4.8,
+            avis_count: 1924,
+            salles: 3,
+            accessibilite: true,
+            types_films: ["Art et Essai", "Drame", "Auteur", "International"],
+            services: ["API et Essai", "VO", "Projection", "+1"],
+            distance: 2.3,
+            site_web: "https://example.com"
+        };
+
+        // Fonction pour générer les étoiles
+        function generateStarsHTML(rating) {
+            const stars = [];
+            const fullStars = Math.floor(rating || 4.5);
+            const hasHalfStar = (rating || 4.5) % 1 >= 0.5;
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars.push('<i class="fas fa-star"></i>');
+            }
+            
+            if (hasHalfStar) {
+                stars.push('<i class="fas fa-star-half-alt"></i>');
+            }
+            
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                stars.push('<i class="far fa-star"></i>');
+            }
+            
+            return stars.join('');
+        }
+
+        // Créer carte pour la liste principale
+        function createMainListCard(cinema) {
+            const card = document.createElement('div');
+            card.className = 'cinema-card';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            
+            const isOpen = true; // Simulé
+            const todayHours = '14:00-22:30';
+            
+            card.innerHTML = `
+                <!-- En-tête avec nom et prix -->
+                <div class="cinema-header">
+                    <h2 class="cinema-title">${cinema.nom}</h2>
+                    <div class="cinema-price">${cinema.prix_moyen.toFixed(2)}€</div>
+                </div>
+                
+                <!-- Adresse -->
+                <div class="cinema-address">
+                    <i class="fas fa-map-marker-alt"></i> ${cinema.adresse}
+                </div>
+                
+                <!-- Rating avec étoiles -->
+                <div class="cinema-rating">
+                    <div class="stars">
+                        ${generateStarsHTML(cinema.note)}
+                    </div>
+                    <span class="rating-info">${cinema.note.toFixed(1)}/5 (${cinema.avis_count} avis)</span>
+                </div>
+                
+                <!-- Informations pratiques -->
+                <div class="cinema-details">
+                    <div class="detail-item">
+                        <i class="fas fa-film"></i>
+                        <span>${cinema.salles} Salles</span>
+                    </div>
+                    <div class="detail-item ${cinema.accessibilite ? 'positive' : 'negative'}">
+                        <i class="fas fa-${cinema.accessibilite ? 'wheelchair' : 'times'}"></i>
+                        <span>${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>01:4...</span>
+                    </div>
+                </div>
+                
+                <!-- Genres de films -->
+                <div class="genres-section">
+                    <h4>Genres de films:</h4>
+                    <div class="tags-container">
+                        ${cinema.types_films.map(genre => 
+                            `<span class="genre-tag">${genre}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <!-- Services -->
+                <div class="services-section">
+                    <h4>Services:</h4>
+                    <div class="tags-container">
+                        ${cinema.services.map(service => 
+                            `<span class="service-tag">${service}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <!-- Horaires d'aujourd'hui -->
+                <div class="today-hours">
+                    <span class="status-indicator ${isOpen ? 'open' : 'closed'}">●</span>
+                    <span class="hours-text">Aujourd'hui: ${todayHours}</span>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="action-buttons">
+                    <button class="btn-details">
+                        <i class="fas fa-info-circle"></i> Détails
+                    </button>
+                    <button class="btn-map">
+                        <i class="fas fa-map-marked-alt"></i> Carte
+                    </button>
+                    <a href="#" class="btn-external">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Créer carte pour le panneau géolocalisation
+        function createGeoCard(cinema) {
+            const card = document.createElement('div');
+            card.className = 'cinema-card proximity-cinema-card';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            
+            const isOpen = true;
+            const todayHours = '14:00-22:30';
+            
+            card.innerHTML = `
+                <!-- En-tête avec nom et prix -->
+                <div class="cinema-header">
+                    <h2 class="cinema-title">${cinema.nom}</h2>
+                    <div class="cinema-price">${cinema.prix_moyen.toFixed(2)}€</div>
+                </div>
+                
+                <!-- Distance pour géolocalisation -->
+                <div class="proximity-info">
+                    <div class="distance-badge">
+                        <i class="fas fa-route"></i>
+                        ${cinema.distance} km
+                    </div>
+                </div>
+                
+                <!-- Adresse -->
+                <div class="cinema-address">
+                    <i class="fas fa-map-marker-alt"></i> ${cinema.adresse}
+                </div>
+                
+                <!-- Rating avec étoiles -->
+                <div class="cinema-rating">
+                    <div class="stars">
+                        ${generateStarsHTML(cinema.note)}
+                    </div>
+                    <span class="rating-info">${cinema.note.toFixed(1)}/5 (${cinema.avis_count} avis)</span>
+                </div>
+                
+                <!-- Informations pratiques -->
+                <div class="cinema-details">
+                    <div class="detail-item">
+                        <i class="fas fa-film"></i>
+                        <span>${cinema.salles} Salles</span>
+                    </div>
+                    <div class="detail-item ${cinema.accessibilite ? 'positive' : 'negative'}">
+                        <i class="fas fa-${cinema.accessibilite ? 'wheelchair' : 'times'}"></i>
+                        <span>${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>01:4...</span>
+                    </div>
+                </div>
+                
+                <!-- Genres de films -->
+                <div class="genres-section">
+                    <h4>Genres de films:</h4>
+                    <div class="tags-container">
+                        ${cinema.types_films.map(genre => 
+                            `<span class="genre-tag">${genre}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <!-- Services -->
+                <div class="services-section">
+                    <h4>Services:</h4>
+                    <div class="tags-container">
+                        ${cinema.services.map(service => 
+                            `<span class="service-tag">${service}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <!-- Horaires d'aujourd'hui -->
+                <div class="today-hours">
+                    <span class="status-indicator ${isOpen ? 'open' : 'closed'}">●</span>
+                    <span class="hours-text">Aujourd'hui: ${todayHours}</span>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="action-buttons">
+                    <button class="btn-details">
+                        <i class="fas fa-info-circle"></i> Détails
+                    </button>
+                    <button class="btn-map">
+                        <i class="fas fa-map-marked-alt"></i> Carte
+                    </button>
+                    <a href="#" class="btn-external">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Afficher les démonstrations
+        document.addEventListener('DOMContentLoaded', () => {
+            const listeDemo = document.getElementById('liste-demo');
+            const geoDemo = document.getElementById('geo-demo');
+
+            // Carte de la liste principale
+            const mainCard = createMainListCard(testCinema);
+            listeDemo.appendChild(mainCard);
+
+            // Carte du panneau de géolocalisation
+            const geoCard = createGeoCard(testCinema);
+            geoDemo.appendChild(geoCard);
+        });
+    </script>
+</body>
+</html>
