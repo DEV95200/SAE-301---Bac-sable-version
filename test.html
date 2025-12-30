@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CinéMap IDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a1a; color: white; padding: 20px; }
+        button { background: #d4af37; color: #000; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px; }
+        .section { padding: 20px; border: 1px solid #333; margin: 10px 0; }
+        .cinema-card { background: #2a2a2a; padding: 15px; margin: 10px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🎬 Test CinéMap IDF</h1>
+    
+    <div>
+        <button onclick="testLoadData()">Test Chargement Données</button>
+        <button onclick="testRenderList()">Test Affichage Liste</button>
+        <button onclick="switchToList()">Basculer vers Liste</button>
+    </div>
+    
+    <div id="results"></div>
+    <div id="cinemas-grid" class="section"></div>
+    
+    <script>
+        // Test de chargement des données
+        async function testLoadData() {
+            const results = document.getElementById('results');
+            results.innerHTML = '⏳ Chargement des données...';
+            
+            try {
+                const response = await fetch('./include/cinemas_data.json');
+                const data = await response.json();
+                
+                results.innerHTML = `
+                    ✅ Données chargées avec succès!<br>
+                    📽️ ${data.cinemas.length} cinémas trouvés<br>
+                    🎭 ${data.genres ? data.genres.length : 0} genres<br>
+                    🗺️ ${data.departements ? data.departements.length : 0} départements
+                `;
+                
+                window.testCinemas = data.cinemas;
+            } catch (error) {
+                results.innerHTML = `❌ Erreur: ${error.message}`;
+            }
+        }
+        
+        // Test de rendu de liste simple
+        function testRenderList() {
+            const container = document.getElementById('cinemas-grid');
+            
+            if (!window.testCinemas) {
+                container.innerHTML = '⚠️ Chargez d\'abord les données';
+                return;
+            }
+            
+            container.innerHTML = '<h3>🎬 Aperçu des cinémas:</h3>';
+            
+            window.testCinemas.slice(0, 3).forEach((cinema, index) => {
+                const card = document.createElement('div');
+                card.className = 'cinema-card';
+                card.innerHTML = `
+                    <h4>${cinema.nom}</h4>
+                    <p>📍 ${cinema.adresse}</p>
+                    <p>💰 Prix: ${cinema.prix_moyen || 'N/A'}€</p>
+                    <p>⭐ Note: ${cinema.note || 'N/A'}/5</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function switchToList() {
+            // Simuler le click sur le bouton liste
+            if (window.cinemaApp) {
+                window.cinemaApp.switchView('list');
+            } else {
+                alert('Application non initialisée');
+            }
+        }
+        
+        // Auto-test au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(testLoadData, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -60,10 +60,15 @@ class CinemaApp {
             this.genres = data.genres || [];
             this.departements = data.departements || [];
             
-            console.log(`Loaded ${this.cinemas.length} cinemas`);
+            console.log(`✅ Chargé ${this.cinemas.length} cinémas`);
             this.updateResultsCounter();
+            
+            // Si on est sur la vue liste, la rendre immédiatement
+            if (this.currentView === 'list') {
+                this.renderCinemasList();
+            }
         } catch (error) {
-            console.error('Error loading cinema data:', error);
+            console.error('❌ Erreur lors du chargement des données:', error);
             this.showError('Erreur lors du chargement des données des cinémas');
         }
     }
@@ -669,6 +674,185 @@ class CinemaApp {
             this.mapManager.showUserLocation(this.userLocation);
         }
     }
+    
+    renderCinemasList() {
+        console.log('🎬 Affichage de la liste des cinémas...');
+        const container = document.getElementById('cinemas-grid');
+        
+        if (!container) {
+            console.error('❌ Container cinemas-grid non trouvé');
+            return;
+        }
+
+        // Vider le container
+        container.innerHTML = '';
+
+        if (this.filteredCinemas.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-film text-6xl text-gray-600 mb-4"></i>
+                    <h3 class="text-xl text-gray-400 mb-2">Aucun cinéma trouvé</h3>
+                    <p class="text-gray-500">Essayez de modifier vos filtres</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Trier les cinémas par note (plus haute d'abord)
+        const sortedCinemas = [...this.filteredCinemas].sort((a, b) => b.note - a.note);
+
+        // Créer les cartes de cinémas
+        sortedCinemas.forEach((cinema, index) => {
+            const card = this.createCinemaCard(cinema, index);
+            container.appendChild(card);
+        });
+
+        console.log(`✅ ${sortedCinemas.length} cinémas affichés`);
+    }
+    
+    createCinemaCard(cinema, index) {
+        const card = document.createElement('div');
+        card.className = 'cinema-card';
+        
+        // Calculer les horaires d'aujourd'hui
+        const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
+        const todayHours = cinema.horaires && cinema.horaires[today] ? cinema.horaires[today] : '14:00-22:30';
+        
+        // Déterminer si le cinéma est ouvert
+        const isOpen = this.isCinemaCurrentlyOpen(cinema);
+        
+        card.innerHTML = `
+            <div class="cinema-card-header">
+                <div class="cinema-name-section">
+                    <h2 class="cinema-name">${cinema.nom}</h2>
+                    <div class="cinema-price">${cinema.prix_moyen ? cinema.prix_moyen.toFixed(2) : '9.00'}€</div>
+                </div>
+                <div class="cinema-address">
+                    📍 ${cinema.adresse}
+                </div>
+                <div class="cinema-rating">
+                    ${this.generateStars(cinema.note)}
+                    <span class="rating-text">${cinema.note ? cinema.note.toFixed(1) : '4.5'}/5 (${cinema.avis_count || '234'} avis)</span>
+                </div>
+            </div>
+            
+            <div class="cinema-info-grid">
+                <div class="info-item">
+                    <span class="info-icon">🎬</span>
+                    <span class="info-text">${cinema.salles || 3} Salles</span>
+                </div>
+                <div class="info-item ${cinema.accessibilite ? 'accessible' : 'not-accessible'}">
+                    <span class="info-icon">${cinema.accessibilite ? '♿' : '🚫'}</span>
+                    <span class="info-text">${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">⏰</span>
+                    <span class="info-text">${cinema.horaires_ouverture || '01:4...'}</span>
+                </div>
+            </div>
+            
+            <div class="genres-section">
+                <h4 class="section-title">Genres de films:</h4>
+                <div class="genres-list">
+                    ${cinema.types_films ? cinema.types_films.slice(0, 4).map(genre => 
+                        `<span class="genre-tag">${genre}</span>`
+                    ).join('') : '<span class="genre-tag">Action</span><span class="genre-tag">Drame</span>'}
+                    ${cinema.types_films && cinema.types_films.length > 4 ? '<span class="more-genres">+' + (cinema.types_films.length - 4) + ' autres</span>' : ''}
+                </div>
+            </div>
+            
+            <div class="services-section">
+                <h4 class="section-title">Services:</h4>
+                <div class="services-list">
+                    ${cinema.services ? cinema.services.slice(0, 3).map(service => 
+                        `<span class="service-tag">${service}</span>`
+                    ).join('') : '<span class="service-tag">Plus grande salle d\'Europe</span><span class="service-tag">Visite guidée</span>'}
+                    ${cinema.services && cinema.services.length > 3 ? '<span class="more-services">+' + (cinema.services.length - 3) + '</span>' : ''}
+                </div>
+            </div>
+            
+            <div class="hours-section">
+                <span class="hours-icon ${isOpen ? 'open' : 'closed'}">●</span>
+                <span class="hours-text">Aujourd'hui: ${todayHours}</span>
+            </div>
+            
+            <div class="cinema-actions">
+                <button class="btn-details" onclick="cinemaApp.showCinemaDetails(${cinema.id})">
+                    <i class="fas fa-info-circle"></i> Détails
+                </button>
+                <button class="btn-map" onclick="cinemaApp.showOnMap(${cinema.id})">
+                    <i class="fas fa-map-marked-alt"></i> Carte
+                </button>
+                <a href="${cinema.site_web || '#'}" target="_blank" class="btn-external">
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        `;
+        
+        // Animation d'apparition
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+        
+        return card;
+    }
+    
+    generateStars(rating) {
+        const stars = [];
+        const fullStars = Math.floor(rating || 4.5);
+        const hasHalfStar = (rating || 4.5) % 1 >= 0.5;
+        
+        for (let i = 0; i < fullStars; i++) {
+            stars.push('<i class="fas fa-star"></i>');
+        }
+        
+        if (hasHalfStar) {
+            stars.push('<i class="fas fa-star-half-alt"></i>');
+        }
+        
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        for (let i = 0; i < emptyStars; i++) {
+            stars.push('<i class="far fa-star"></i>');
+        }
+        
+        return stars.join('');
+    }
+    
+    isCinemaCurrentlyOpen(cinema) {
+        const now = new Date();
+        const currentTime = now.getHours() * 100 + now.getMinutes();
+        const today = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
+        
+        if (cinema.horaires && cinema.horaires[today]) {
+            const [start, end] = cinema.horaires[today].split('-').map(time => {
+                const [h, m] = time.split(':').map(Number);
+                return h * 100 + m;
+            });
+            return currentTime >= start && currentTime <= end;
+        }
+        
+        // Par défaut, considérer ouvert entre 14h et 22h30
+        return currentTime >= 1400 && currentTime <= 2230;
+    }
+    
+    showOnMap(cinemaId) {
+        // Basculer vers la vue carte
+        this.switchView('map');
+        
+        // Trouver le cinéma
+        const cinema = this.cinemas.find(c => c.id === cinemaId);
+        if (cinema && this.mapManager) {
+            // Centrer la carte sur le cinéma
+            this.mapManager.map.setView([cinema.latitude, cinema.longitude], 15);
+            
+            // Ouvrir le popup du marqueur
+            const marker = this.mapManager.markers.find(m => m.cinemaData && m.cinemaData.id === cinemaId);
+            if (marker) {
+                marker.openPopup();
+            }
+        }
+    }
 
     initializeGeolocation() {
         if (window.GeolocationManager) {
@@ -676,6 +860,27 @@ class CinemaApp {
             console.log('✅ Gestionnaire de géolocalisation initialisé');
         } else {
             console.warn('⚠️ GeolocationManager non disponible');
+        }
+    }
+    
+    renderStatistics() {
+        console.log('📊 Affichage des statistiques...');
+        // TODO: Implémenter les statistiques
+        const container = document.getElementById('stats-section');
+        if (container) {
+            const statsContainer = container.querySelector('.stats-container');
+            if (statsContainer) {
+                statsContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-chart-bar text-6xl text-cinema-accent mb-4"></i>
+                        <h3 class="text-xl text-white mb-2">Statistiques</h3>
+                        <p class="text-gray-400">Fonctionnalité en développement</p>
+                        <div class="mt-6">
+                            <p class="text-sm text-gray-300">${this.cinemas.length} cinémas dans la base de données</p>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
 }

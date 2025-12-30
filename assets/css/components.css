@@ -451,6 +451,261 @@
   }
 }
 
+/* Styles pour les cartes de cinémas - Format exact de l'image */
+.cinema-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.cinema-card:hover {
+  transform: translateY(-5px);
+  border-color: #d4af37;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+}
+
+.cinema-card-header {
+  margin-bottom: 15px;
+}
+
+.cinema-name-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.cinema-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.cinema-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: #d4af37;
+  white-space: nowrap;
+}
+
+.cinema-address {
+  color: #9ca3af;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.cinema-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.cinema-rating .fas.fa-star,
+.cinema-rating .fas.fa-star-half-alt {
+  color: #d4af37;
+  font-size: 14px;
+}
+
+.cinema-rating .far.fa-star {
+  color: #444;
+  font-size: 14px;
+}
+
+.rating-text {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.cinema-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 5px;
+}
+
+.info-icon {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.info-text {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.info-item.accessible .info-icon {
+  color: #10b981;
+}
+
+.info-item.not-accessible .info-icon {
+  color: #ef4444;
+}
+
+.genres-section,
+.services-section {
+  margin-bottom: 15px;
+}
+
+.section-title {
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.genres-list,
+.services-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.genre-tag {
+  background: rgba(212, 175, 55, 0.15);
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.service-tag {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.more-genres,
+.more-services {
+  color: #9ca3af;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.hours-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 15px;
+  padding: 8px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.hours-icon {
+  font-size: 12px;
+}
+
+.hours-icon.open {
+  color: #10b981;
+}
+
+.hours-icon.closed {
+  color: #ef4444;
+}
+
+.hours-text {
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cinema-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-details {
+  flex: 1;
+  background: #d4af37;
+  color: #000;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-details:hover {
+  background: #b8941f;
+  transform: translateY(-1px);
+}
+
+.btn-map {
+  flex: 1;
+  background: transparent;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-map:hover {
+  background: rgba(212, 175, 55, 0.1);
+  transform: translateY(-1px);
+}
+
+.btn-external {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-external:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Animation d'apparition */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* === SECTION STATISTIQUES === */
 .stats-section {
   min-height: 100vh;
