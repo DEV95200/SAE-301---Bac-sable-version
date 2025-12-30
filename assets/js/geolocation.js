@@ -338,7 +338,15 @@ class GeolocationManager {
   }
 
   displayResults() {
+    console.log('📋 Affichage des résultats dans le panneau...');
     const container = document.getElementById('nearest-results');
+    
+    if (!container) {
+      console.error('❌ Container nearest-results non trouvé');
+      return;
+    }
+    
+    console.log(`🎬 Affichage de ${this.nearestCinemas.length} cinémas`);
     container.innerHTML = '';
 
     if (this.nearestCinemas.length === 0) {
@@ -352,100 +360,105 @@ class GeolocationManager {
     }
 
     this.nearestCinemas.forEach((cinema, index) => {
-      const card = this.createCinemaCard(cinema, index + 1);
-      container.appendChild(card);
+      console.log(`🎭 Création carte pour: ${cinema.nom}`);
+      try {
+        const card = this.createCinemaCard(cinema, index + 1);
+        container.appendChild(card);
+      } catch (error) {
+        console.error(`❌ Erreur création carte pour ${cinema.nom}:`, error);
+      }
     });
+    
+    console.log(`✅ ${this.nearestCinemas.length} cartes ajoutées au panneau`);
   }
 
   createCinemaCard(cinema, rank) {
     const card = document.createElement('div');
-    card.className = 'cinema-card proximity-cinema-card';
+    card.className = 'proximity-card';
     
     const isOpen = this.isCinemaOpen(cinema);
-    const todayHours = '14:00-22:30'; // Default hours
+    const distance = cinema.distance || 0;
+    const walkingTime = Math.round(distance * 12); // ~12 min par km à pied
+    const drivingTime = Math.round(distance * 2.5); // ~2.5 min par km en voiture
     
     card.innerHTML = `
-        <!-- En-tête avec nom et prix -->
-        <div class="cinema-header">
-            <h2 class="cinema-title">${cinema.nom}</h2>
-            <div class="cinema-price">${cinema.prix_moyen ? cinema.prix_moyen.toFixed(2) : '9.00'}€</div>
+        <!-- En-tête avec rang, nom et statut -->
+        <div class="card-header">
+            <div class="rank-badge">${rank}</div>
+            <div class="cinema-name">${cinema.nom}</div>
+            <div class="status-badge ${isOpen ? 'open' : 'closed'}">
+                ${isOpen ? 'Ouvert' : 'Fermé'}
+            </div>
         </div>
         
-        <!-- Distance et adresse -->
-        <div class="proximity-info">
-            <div class="distance-badge">
+        <!-- Contenu de la carte -->
+        <div class="card-content">
+            <!-- Informations de distance -->
+            <div class="distance-info">
+                <div class="distance-main">
+                    <i class="fas fa-route"></i>
+                    <span class="distance">${distance.toFixed(1)} km</span>
+                </div>
+                <div class="time-estimates">
+                    <div class="walking-time">
+                        <i class="fas fa-walking"></i>
+                        <span>~${walkingTime} min</span>
+                    </div>
+                    <div class="driving-time">
+                        <i class="fas fa-car"></i>
+                        <span>~${drivingTime} min</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Informations du cinéma -->
+            <div class="cinema-info">
+                <div class="address">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>${cinema.adresse}</span>
+                </div>
+                
+                <!-- Détails -->
+                <div class="details">
+                    <span>
+                        <i class="fas fa-film"></i>
+                        ${cinema.salles || 3} salles
+                    </span>
+                    <span>
+                        <i class="fas fa-star"></i>
+                        ${(cinema.note || 4.5).toFixed(1)}/5
+                    </span>
+                    <span>
+                        <i class="fas fa-euro-sign"></i>
+                        ${cinema.prix_moyen ? cinema.prix_moyen.toFixed(2) : '9.50'}€
+                    </span>
+                </div>
+                
+                <!-- Services -->
+                <div class="services">
+                    ${(cinema.services || ['IMAX Dôme', 'Films 360°', 'Restaurant']).slice(0, 3).map(service => 
+                        `<span class="service-tag">${service}</span>`
+                    ).join('')}
+                    ${cinema.services && cinema.services.length > 3 ? 
+                        `<span class="more-services">+${cinema.services.length - 3} autres</span>` : ''
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="card-actions">
+            <button class="action-btn primary" onclick="window.geolocationManager.getDirections(${cinema.latitude}, ${cinema.longitude}, '${cinema.nom}')">
                 <i class="fas fa-route"></i>
-                ${window.GeoUtils ? window.GeoUtils.formatDistance(cinema.distance) : cinema.distance.toFixed(1) + ' km'}
-            </div>
-        </div>
-        
-        <!-- Adresse -->
-        <div class="cinema-address">
-            <i class="fas fa-map-marker-alt"></i> ${cinema.adresse}
-        </div>
-        
-        <!-- Rating avec étoiles -->
-        <div class="cinema-rating">
-            <div class="stars">
-                ${this.generateStarsHTML(cinema.note || 4.5)}
-            </div>
-            <span class="rating-info">${(cinema.note || 4.5).toFixed(1)}/5 (${cinema.avis_count || 234} avis)</span>
-        </div>
-        
-        <!-- Informations pratiques -->
-        <div class="cinema-details">
-            <div class="detail-item">
-                <i class="fas fa-film"></i>
-                <span>${cinema.ecrans || cinema.salles || 3} Salles</span>
-            </div>
-            <div class="detail-item ${cinema.accessibilite ? 'positive' : 'negative'}">
-                <i class="fas fa-${cinema.accessibilite ? 'wheelchair' : 'times'}"></i>
-                <span>${cinema.accessibilite ? 'Accessible' : 'Pas de parking'}</span>
-            </div>
-            <div class="detail-item">
-                <i class="fas fa-clock"></i>
-                <span>01:4...</span>
-            </div>
-        </div>
-        
-        <!-- Genres de films -->
-        <div class="genres-section">
-            <h4>Genres de films:</h4>
-            <div class="tags-container">
-                ${(cinema.types_films || ['Art et Essai', 'Drame', 'Auteur', 'International']).slice(0, 4).map(genre => 
-                    `<span class="genre-tag">${genre}</span>`
-                ).join('')}
-                ${cinema.types_films && cinema.types_films.length > 4 ? `<span class="more-tag">+${cinema.types_films.length - 4} autres</span>` : ''}
-            </div>
-        </div>
-        
-        <!-- Services -->
-        <div class="services-section">
-            <h4>Services:</h4>
-            <div class="tags-container">
-                ${(cinema.services || ['Plus grande salle d\'Europe', 'Visite guidée']).slice(0, 3).map(service => 
-                    `<span class="service-tag">${service}</span>`
-                ).join('')}
-                ${cinema.services && cinema.services.length > 3 ? `<span class="service-count">+${cinema.services.length - 3}</span>` : ''}
-            </div>
-        </div>
-        
-        <!-- Horaires d'aujourd'hui -->
-        <div class="today-hours">
-            <span class="status-indicator ${isOpen ? 'open' : 'closed'}">●</span>
-            <span class="hours-text">Aujourd'hui: ${todayHours}</span>
-        </div>
-        
-        <!-- Boutons d'action -->
-        <div class="action-buttons">
-            <button class="btn-details" onclick="window.geolocationManager.showDetails(${cinema.id})">
-                <i class="fas fa-info-circle"></i> Détails
+                Itinéraire
             </button>
-            <button class="btn-map" onclick="window.geolocationManager.navigateTo(${cinema.latitude}, ${cinema.longitude}, '${cinema.nom}')">
-                <i class="fas fa-map-marked-alt"></i> Carte
+            <button class="action-btn secondary" onclick="window.geolocationManager.showDetails(${cinema.id})">
+                <i class="fas fa-info-circle"></i>
+                Détails
             </button>
-            <a href="${cinema.site_web || '#'}" target="_blank" class="btn-external">
-                <i class="fas fa-external-link-alt"></i>
+            <a href="tel:${cinema.telephone || '0142056015'}" class="action-btn tertiary">
+                <i class="fas fa-phone"></i>
+                Appeler
             </a>
         </div>
     `;
@@ -472,6 +485,17 @@ class GeolocationManager {
     }
     
     return stars.join('');
+  }
+
+  getDirections(lat, lng, name) {
+    if (this.userPosition) {
+      // Utiliser l'itinéraire interne si possible
+      this.navigateTo(lat, lng, name);
+    } else {
+      // Ouvrir dans Google Maps
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+      window.open(url, '_blank');
+    }
   }
 
   navigateTo(lat, lng, name) {
