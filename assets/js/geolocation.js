@@ -172,21 +172,7 @@ class GeolocationManager {
     });
 
     // Actions
-    document.getElementById('find-nearest').addEventListener('click', async () => {
-      await this.findNearestCinemas();
-      // Notification seulement pour le clic manuel du bouton
-      if (this.nearestCinemas.length > 0) {
-        window.ToastManager.show(
-          `${this.nearestCinemas.length} cinéma(s) trouvé(s) dans un rayon de ${this.searchRadius} km`,
-          'success'
-        );
-      } else {
-        window.ToastManager.show(
-          `Aucun cinéma trouvé dans un rayon de ${this.searchRadius} km`,
-          'warning'
-        );
-      }
-    });
+    document.getElementById('find-nearest').addEventListener('click', () => this.findNearestCinemas());
     document.getElementById('track-position').addEventListener('click', () => this.toggleTracking());
     document.getElementById('save-preferences').addEventListener('click', () => this.savePreferences());
   }
@@ -279,7 +265,11 @@ class GeolocationManager {
         }
       }
 
-      // PAS de notification automatique ici - seulement pour les actions manuelles
+      // Notification
+      window.ToastManager.show(
+        `${this.nearestCinemas.length} cinéma(s) trouvé(s) dans un rayon de ${this.searchRadius} km`,
+        'success'
+      );
 
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
