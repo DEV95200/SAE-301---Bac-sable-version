@@ -18,13 +18,15 @@ class GeolocationManager {
   }
 
   createGeolocationPanel() {
+    // Supprime l'ancien panneau fixe s'il existe
     const existingPanel = document.getElementById('geolocation-panel');
     if (existingPanel) existingPanel.remove();
 
-    const panel = document.createElement('div');
-    panel.id = 'geolocation-panel';
-    panel.className = 'geolocation-panel hidden';
-    panel.innerHTML = `
+    // Utilise maintenant la sidebar intégrée
+    const sidebar = document.getElementById('geolocation-sidebar');
+    if (!sidebar) return;
+
+    sidebar.innerHTML = `
       <div class="panel-header">
         <h3><i class="fas fa-location-arrow"></i> Cinémas à proximité</h3>
         <button id="close-geo-panel" class="close-btn">
@@ -126,7 +128,7 @@ class GeolocationManager {
       </div>
     `;
 
-    document.body.appendChild(panel);
+    // Le panneau est maintenant intégré dans le HTML, pas besoin de l'ajouter au body
   }
 
   setupEventListeners() {
@@ -178,8 +180,8 @@ class GeolocationManager {
   }
 
   async togglePanel() {
-    const panel = document.getElementById('geolocation-panel');
-    if (panel.classList.contains('hidden')) {
+    const sidebar = document.getElementById('geolocation-sidebar');
+    if (sidebar.classList.contains('hidden')) {
       await this.showPanel();
     } else {
       this.hidePanel();
@@ -187,11 +189,20 @@ class GeolocationManager {
   }
 
   async showPanel() {
-    const panel = document.getElementById('geolocation-panel');
-    panel.classList.remove('hidden');
+    const sidebar = document.getElementById('geolocation-sidebar');
+    const container = document.querySelector('.map-layout-container');
     
-    // Animation d'entrée
-    setTimeout(() => panel.classList.add('show'), 10);
+    if (sidebar) {
+      sidebar.classList.remove('hidden');
+      
+      // Ajout de classe pour compatibilité CSS
+      if (container) {
+        container.classList.add('sidebar-active');
+      }
+      
+      // Animation d'entrée
+      setTimeout(() => sidebar.classList.add('show'), 10);
+    }
 
     // Vérifier les permissions automatiquement
     if (!this.userPosition) {
@@ -200,9 +211,19 @@ class GeolocationManager {
   }
 
   hidePanel() {
-    const panel = document.getElementById('geolocation-panel');
-    panel.classList.remove('show');
-    setTimeout(() => panel.classList.add('hidden'), 300);
+    const sidebar = document.getElementById('geolocation-sidebar');
+    const container = document.querySelector('.map-layout-container');
+    
+    if (sidebar) {
+      sidebar.classList.remove('show');
+      
+      // Suppression de classe pour compatibilité CSS
+      if (container) {
+        container.classList.remove('sidebar-active');
+      }
+      
+      setTimeout(() => sidebar.classList.add('hidden'), 300);
+    }
   }
 
   async getCurrentPosition() {
@@ -722,8 +743,8 @@ class GeolocationManager {
   // Cleanup
   destroy() {
     this.stopTracking();
-    const panel = document.getElementById('geolocation-panel');
-    if (panel) panel.remove();
+    const sidebar = document.getElementById('geolocation-sidebar');
+    if (sidebar) sidebar.innerHTML = '';
   }
 }
 
