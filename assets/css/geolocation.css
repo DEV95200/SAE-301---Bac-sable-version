@@ -36,13 +36,7 @@
 }
 
 /* Adaptation de la carte quand le panneau est visible */
-.map-layout-container:has(.geolocation-sidebar:not(.hidden)) .cinema-map-frame,
-.map-layout-container.sidebar-active .cinema-map-frame {
-  flex: 0 1 calc(100% - 400px);
-}
-
-/* Support pour navigateurs sans :has() */
-.map-layout-container.sidebar-active .cinema-map-frame {
+.map-layout-container:has(.geolocation-sidebar:not(.hidden)) .cinema-map-frame {
   flex: 0 1 calc(100% - 400px);
 }
 

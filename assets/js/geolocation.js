@@ -212,16 +212,8 @@ class GeolocationManager {
 
   hidePanel() {
     const sidebar = document.getElementById('geolocation-sidebar');
-    const container = document.querySelector('.map-layout-container');
-    
     if (sidebar) {
       sidebar.classList.remove('show');
-      
-      // Suppression de classe pour compatibilité CSS
-      if (container) {
-        container.classList.remove('sidebar-active');
-      }
-      
       setTimeout(() => sidebar.classList.add('hidden'), 300);
     }
   }
