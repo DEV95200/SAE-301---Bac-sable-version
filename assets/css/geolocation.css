@@ -1,64 +1,6 @@
 /* Styles pour le gestionnaire de géolocalisation avancée */
 
-/* === LAYOUT CONTAINER === */
-.map-layout-container {
-  display: flex;
-  height: 100%;
-  transition: all 0.3s ease;
-}
-
-.cinema-map-frame {
-  flex: 1;
-  transition: flex 0.3s ease;
-}
-
-/* === SIDEBAR INTÉGRÉE === */
-.geolocation-sidebar {
-  width: 0;
-  min-width: 0;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-  border-left: 1px solid #2a2a2a;
-  transition: all 0.3s ease;
-  overflow: hidden;
-  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.geolocation-sidebar:not(.hidden) {
-  width: 400px;
-  min-width: 400px;
-  overflow-y: auto;
-}
-
-.geolocation-sidebar.show {
-  width: 400px;
-  min-width: 400px;
-  overflow-y: auto;
-}
-
-/* Adaptation de la carte quand le panneau est visible */
-.map-layout-container:has(.geolocation-sidebar:not(.hidden)) .cinema-map-frame {
-  flex: 0 1 calc(100% - 400px);
-}
-
-@media (max-width: 768px) {
-  .map-layout-container {
-    flex-direction: column;
-  }
-  
-  .geolocation-sidebar:not(.hidden) {
-    width: 100%;
-    min-width: 100%;
-    height: 50vh;
-    border-left: none;
-    border-top: 1px solid #2a2a2a;
-  }
-  
-  .map-layout-container:has(.geolocation-sidebar:not(.hidden)) .cinema-map-frame {
-    flex: 0 1 50vh;
-  }
-}
-
-/* === PANNEAU PRINCIPAL (pour compatibilité) === */
+/* === PANNEAU PRINCIPAL === */
 .geolocation-panel {
   position: fixed;
   top: 0;
@@ -71,7 +13,6 @@
   transition: right 0.3s ease;
   overflow-y: auto;
   box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
-  display: none; /* Caché par défaut, utilise maintenant la sidebar */
 }
 
 .geolocation-panel:not(.hidden) {
