@@ -22,7 +22,8 @@
   /* Carte réduite mais lisible sur mobile */
   .map-section {
     order: 1; /* Carte en premier */
-    margin: 0.5rem;
+    margin: 1.6rem;
+    padding: 0.9rem;
   }
   
   .framed-map-container {

@@ -369,6 +369,7 @@
 
 .content-section.active {
   display: block;
+  margin-bottom: -9rem;
 }
 
 /* === SECTION CARTE === */
@@ -1375,8 +1376,8 @@
 /* Responsive pour mobile */
 @media (max-width: 768px) {
   .cinema-map-frame {
-    margin: 5px;
-    padding: 15px;
+    margin: 35px;
+    padding: 5px;
     border-width: 2px;
     min-height: 70vh !important;
   }
