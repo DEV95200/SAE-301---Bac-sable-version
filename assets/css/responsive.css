@@ -194,55 +194,6 @@
   transform: translateX(0);
 }
 
-/* Toast responsive */
-@media (max-width: 768px) {
-  .toast {
-    top: 10px;
-    right: 10px;
-    left: 10px;
-    max-width: calc(100vw - 20px);
-    transform: translateY(-100px);
-  }
-  
-  .toast.show {
-    transform: translateY(0);
-  }
-}
-
-/* === AMÉLIORATIONS ERGONOMIE SCROLL === */
-/* Zones de scroll distinctes pour éviter les conflits */
-@media (max-width: 768px) {
-  /* Conteneur principal avec scroll vertical */
-  body {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-  
-  /* Carte avec gestion tactile optimisée */
-  .leaflet-container {
-    touch-action: pan-x pan-y;
-  }
-  
-  /* Scroll amélioré pour les listes de résultats */
-  .results-container {
-    -webkit-overflow-scrolling: touch;
-    overflow-y: auto;
-  }
-  
-  /* Panneau de géolocalisation responsive */
-  .geolocation-panel {
-    width: 100vw;
-    right: -100vw;
-    height: 100vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .geolocation-panel:not(.hidden) {
-    right: 0;
-  }
-}
-
 /* Améliorations pour les filtres */
 .filter-dropdown {
   position: relative;
