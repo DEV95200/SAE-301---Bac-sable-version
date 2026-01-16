@@ -426,8 +426,8 @@
 @media (max-width: 768px) {
 .map-control-panel {
   position: absolute;
-  top: 1rem;
-  right: -9.5rem;
+  top: 2.7rem;
+  right: -7.9rem;
   z-index: 30;
   display: flex;
   flex-direction: column;
