@@ -423,6 +423,18 @@
   outline: none;
 }
 
+@media (max-width: 768px) {
+.map-controls {
+  position: absolute;
+  top: 2rem;
+  right: 1.6rem;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+    }
+}
+
 /* === SECTION LISTE === */
 .list-section {
   min-height: 100vh;
